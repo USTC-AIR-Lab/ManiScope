@@ -1,6 +1,6 @@
 # 轻量渲染：对指定任务只做 setup_demo(按 seed 摆好物体) + 存 head_camera 一帧。不跑轨迹/规划。
 # 默认 target 模式：跳过 unstable/失败的 seed，一直试到攒够 target 张稳定场景(和正式采集一致)。
-import sys, os, yaml, importlib, argparse
+import sys, os, yaml, importlib, argparse, traceback
 sys.path.append("./")
 import numpy as np
 from envs import *  # 提供 CONFIGS_PATH
@@ -53,6 +53,7 @@ def main():
     ap.add_argument("--out", required=True)
     ap.add_argument("--cam_type", default="Large_D435")
     ap.add_argument("--camera_name", default="head_camera")
+    ap.add_argument("--traceback", action="store_true", help="Include full errors in failed smoke attempts")
     a = ap.parse_args()
 
     os.makedirs(a.out, exist_ok=True)
@@ -68,11 +69,14 @@ def main():
                 count += 1
                 print(f"[{a.task_name}] ep{count-1:02d} seed{seed} OK", flush=True)
             except Exception as e:
+                if a.traceback: traceback.print_exc()
                 print(f"[{a.task_name}] seed{seed} SKIP: {e}", flush=True)
                 try: task.close_env()
                 except Exception: pass
             seed += 1
         print(f"[{a.task_name}] 完成 {count}/{a.target} (试到 seed={seed-1}) -> {a.out}", flush=True)
+        if count < a.target:
+            raise SystemExit(1)
     else:
         ok = 0
         for ep in range(a.episodes):
@@ -82,10 +86,13 @@ def main():
                 render_one(task, base_args, ep, seed, out_png, a.camera_name); ok += 1
                 print(f"[{a.task_name}] ep{ep:02d} seed{seed} OK", flush=True)
             except Exception as e:
+                if a.traceback: traceback.print_exc()
                 print(f"[{a.task_name}] ep{ep:02d} seed{seed} FAIL: {e}", flush=True)
                 try: task.close_env()
                 except Exception: pass
         print(f"[{a.task_name}] 完成 {ok}/{a.episodes} -> {a.out}", flush=True)
+        if ok < a.episodes:
+            raise SystemExit(1)
 
 if __name__ == "__main__":
     main()

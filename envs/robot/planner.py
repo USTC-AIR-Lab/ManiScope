@@ -51,6 +51,8 @@ try:
             # translate from baselink to arm's base
             with open(self.yml_path, "r") as f:
                 yml_data = yaml.safe_load(f)
+            from .asset_paths import resolve_robot_config
+            yml_data = resolve_robot_config(yml_data, self.yml_path)
             self.frame_bias = yml_data["planner"]["frame_bias"]
 
             # motion generation
@@ -72,7 +74,7 @@ try:
                     }
                 }
             motion_gen_config = MotionGenConfig.load_from_robot_config(
-                self.yml_path,
+                yml_data,
                 world_config,
                 interpolation_dt=1 / 250,
                 num_trajopt_seeds=1,
@@ -81,7 +83,7 @@ try:
             self.motion_gen = MotionGen(motion_gen_config)
             self.motion_gen.warmup()
             motion_gen_config = MotionGenConfig.load_from_robot_config(
-                self.yml_path,
+                yml_data,
                 world_config,
                 interpolation_dt=1 / 250,
                 num_trajopt_seeds=1,

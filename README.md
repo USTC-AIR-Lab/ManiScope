@@ -28,6 +28,9 @@ EPISODES=1 RUN_NAME=smoke_dm05 bash suite/run_suite.sh dm05 move_can_coaster
 
 See [installation](docs/INSTALLATION.md) before the first simulation run.
 A dry run checks configuration and benchmark inputs; it does not check GPU compatibility.
+**Validation status:** CPU checks pass, including a clean clone. The current host's migrated GPU
+runtime fails the rendering smoke with a CUDA illegal-instruction error. See
+[the validation record](docs/NORMALIZATION.md) before running or reporting benchmark results.
 
 ## Evaluation contract
 

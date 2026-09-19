@@ -84,3 +84,26 @@ def test_runner_propagates_failure_and_records_metadata(tmp_path):
         assert all(json.loads(p.read_text())['episodes']==1 for p in metadata)
     finally:
         stop.set();worker.join();server.close()
+
+
+def test_relocated_assets_are_resolved_without_mutating_input(tmp_path):
+    import copy
+    spec=importlib.util.spec_from_file_location("asset_paths",ROOT/"envs/robot/asset_paths.py")
+    mod=importlib.util.module_from_spec(spec);spec.loader.exec_module(mod)
+    directory=tmp_path/"robot";directory.mkdir();(directory/"urdf").mkdir()
+    (directory/"urdf/model.urdf").write_text("<robot/>")
+    (directory/"spheres.yml").write_text("{}")
+    config={"robot_cfg":{"kinematics":{"urdf_path":"/old/workspace/robot/urdf/model.urdf","collision_spheres":"/old/workspace/robot/spheres.yml","asset_root_path":None}}}
+    original=copy.deepcopy(config)
+    result=mod.resolve_robot_config(config,directory/"curobo.yml")
+    assert config==original
+    assert result["robot_cfg"]["kinematics"]["urdf_path"]==str(directory/"urdf/model.urdf")
+    assert result["robot_cfg"]["kinematics"]["collision_spheres"]==str(directory/"spheres.yml")
+
+
+def test_missing_local_asset_is_rejected(tmp_path):
+    import pytest
+    spec=importlib.util.spec_from_file_location("asset_paths",ROOT/"envs/robot/asset_paths.py")
+    mod=importlib.util.module_from_spec(spec);spec.loader.exec_module(mod)
+    with pytest.raises(FileNotFoundError):
+        mod.resolve_robot_config({"robot_cfg":{"kinematics":{"urdf_path":"urdf/missing.urdf"}}},tmp_path/"curobo.yml")

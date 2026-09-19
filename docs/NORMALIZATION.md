@@ -28,10 +28,22 @@ and remained unchanged. No remote repository has been created or pushed.
 - 48 unique formal scenes; all environment, instruction, seed and step-limit entries present.
 - 100 distinct frozen seeds per scene; seen/unseen instruction pools nonempty.
 - Python and shell syntax checks and protocol hashes pass.
-- Six CPU regression tests pass, including a real runner with a mock simulator/service that confirms
+- Eight CPU regression tests pass, including a real runner with a mock simulator/service that confirms
   failure propagation, video/frozen-seed controls and per-task metadata.
 - Optional model inference services have not all been launched; no new success-rate claims are made.
-- The existing simulation environment imports PyTorch 2.7.1+cu126, SAPIEN and mplib, and CUDA is available after an isolated expat preload workaround. A bounded render attempt reached CUDA extension compilation but timed out before rendering; this is not a passed simulation test. A cached follow-up is being checked separately.
+- A clean clone without assets or private local configuration passes the CPU checks/tests.
+- Runtime imports of PyTorch 2.7.1+cu126, SAPIEN, mplib and the vendored cuRobo succeed;
+  CUDA is detected. The migrated local Python required an isolated expat preload workaround.
+- Initial rendering exposed stale absolute paths inside external asset YAML. The planner now
+  resolves those paths in memory against the current embodiment directory; external files are not edited.
+  Regression tests cover correct relocation, missing resources and non-mutation of input configuration.
+- CUDA extensions compiled in an ignored local cache. The subsequent bounded rendering attempt
+  failed with `CUDA error: an illegal instruction was encountered` (also reported by Warp).
+  No image was generated. This environment has NOT passed a real simulation or policy evaluation.
+  Repair or rebuild the isolated GPU runtime and rerun rendering, expert smoke and a model episode
+  before claiming end-to-end reproducibility or publishing new benchmark scores.
+- Rendering now returns a failure exit code when the requested images are not produced;
+  `--traceback` enables detailed diagnosis instead of silently returning success.
 
 ## Release boundaries
 

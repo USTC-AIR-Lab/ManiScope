@@ -40,7 +40,9 @@ python3 tools/link_assets.py /absolute/path/to/robotwin_assets
 
 This creates an ignored local link. It refuses to replace an existing different path and never
 edits the target. Keep embodiment config/URDF paths portable; migrated asset bundles may contain
-machine-specific references and must be checked separately.
+machine-specific references. The planner resolves known embodiment-local URDF and collision paths
+in memory against the current resource directory; it never rewrites the shared files. Unknown or
+missing external paths fail with a clear error and must be configured explicitly.
 
 ## Model backend
 
