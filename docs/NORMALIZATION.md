@@ -38,7 +38,9 @@ and remained unchanged. No remote repository has been created or pushed.
   resolves those paths in memory against the current embodiment directory; external files are not edited.
   Regression tests cover correct relocation, missing resources and non-mutation of input configuration.
 - CUDA extensions compiled in an ignored local cache. The subsequent bounded rendering attempt
-  failed with `CUDA error: an illegal instruction was encountered` (also reported by Warp).
+  failed with `CUDA error: an illegal instruction was encountered`. A synchronous diagnostic
+  localizes the first failure to cuRobo LBFGS (`lbfgs_step_cu.forward`) during planner warmup;
+  Warp also reports errors during cleanup. The root compatibility cause is not established.
   No image was generated. This environment has NOT passed a real simulation or policy evaluation.
   Repair or rebuild the isolated GPU runtime and rerun rendering, expert smoke and a model episode
   before claiming end-to-end reproducibility or publishing new benchmark scores.
