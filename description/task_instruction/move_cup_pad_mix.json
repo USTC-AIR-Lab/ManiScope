@@ -1,0 +1,11 @@
+{
+  "seen": [
+    "Move the {A} onto the pad.",
+    "Move the {A} onto the pad with {a}."
+  ],
+  "unseen": [
+    "Move the {A} onto the pad.",
+    "Please move the {A} onto the pad."
+  ],
+  "_note": "D1-01 mixture L2;判据=on;由 suite/table.py 生成"
+}

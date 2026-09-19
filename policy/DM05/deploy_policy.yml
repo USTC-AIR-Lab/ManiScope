@@ -1,0 +1,18 @@
+# DM0.5 (Dexmal DM05-robotwin2) 单内核 eval 基础字段。
+# 场景/episode 数由 run_suite.sh 通过 --overrides 覆盖，这里只放策略协议字段。
+policy_name: DM05
+task_name: null
+task_config: demo_clean
+ckpt_setting: dm05
+seed: 0
+instruction_type: unseen
+
+# 推理服务（opendm 起，见 suite/launch/start_dm05.sh）
+base_url: http://localhost:7891
+cameras: "head_camera_rgb,left_camera_rgb,right_camera_rgb"
+# DM0.5 的 chunk 是 50
+action_horizon: 50
+# v1 = JSON /v1/infer（Pi0/DM0 这类）；legacy = CogACT 风格 /process_frame
+api_style: v1
+# DM0.5 直接输出绝对 qpos，不能走 relative/delta 转换
+action_mode: absolute

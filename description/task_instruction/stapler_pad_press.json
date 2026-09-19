@@ -1,0 +1,25 @@
+{
+  "full_description": "first move the stapler onto the colored mat, then press it down",
+  "_note": "stapler_pad_press（组合泛化场景）自己的复合句，只在 STAPLER_STAGED_INSTRUCTION=0 的基线里用到。分阶段模式下用的是 move_stapler_pad.json 和 press_stapler.json 的原模板。",
+  "schema": "{A} notifies the stapler, {B} notifies the color of the mat(YOU SHOULD SAY {B} mat, or {B} colored mat), {a} notifies the arm",
+  "preference": "num of words should not exceed 20",
+  "seen": [
+    "Move {A} to the {B} mat, then press it.",
+    "Put {A} on the {B} mat and press it down.",
+    "Place {A} on the {B} colored mat, then push it down.",
+    "Use {a} to set {A} on the {B} mat, then press it.",
+    "Set {A} onto the {B} mat and press down on it.",
+    "Move {A} onto the {B} colored mat, then press {A}.",
+    "With {a}, put {A} on the {B} mat and press it.",
+    "Drop {A} on the {B} mat, then push down on it.",
+    "Bring {A} to the {B} mat and press it until it works.",
+    "Place {A} on the {B} mat, afterwards press it down."
+  ],
+  "unseen": [
+    "Move {A} to the {B} mat, then press down on it.",
+    "Put {A} onto the {B} colored mat and press it.",
+    "Use {a} to move {A} to the {B} mat, then press {A}.",
+    "Set {A} on the {B} mat, then push it down.",
+    "Place {A} on the {B} mat and then press on it."
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "seen": [
+    "Put the {A} on the coaster.",
+    "Place the {A} on the coaster.",
+    "Put the {A} on the coaster with {a}."
+  ],
+  "unseen": [
+    "Put the {A} on the coaster.",
+    "Please put the {A} on the coaster."
+  ],
+  "_note": "D1-08 skill x object L2;判据=on;由 suite/table.py 生成"
+}

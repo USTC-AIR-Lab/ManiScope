@@ -1,0 +1,6 @@
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.gif binary
+# Preserve the vendored snapshot exactly, including upstream whitespace.
+envs/curobo/** -whitespace

@@ -1,0 +1,12 @@
+{
+  "seen": [
+    "Put the {A} to the right of the plate.",
+    "Place the {A} to the right of the plate.",
+    "Put the {A} to the right of the plate with {a}."
+  ],
+  "unseen": [
+    "Put the {A} to the right of the plate.",
+    "Please put the {A} to the right of the plate."
+  ],
+  "_note": "D2-06 skill x spatial L2;判据=rel;由 suite/table.py 生成"
+}

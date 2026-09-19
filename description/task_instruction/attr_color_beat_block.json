@@ -1,0 +1,11 @@
+{
+  "seen": [
+    "Beat the {A} with the hammer.",
+    "Beat the {A} with the hammer with {a}."
+  ],
+  "unseen": [
+    "Beat the {A} with the hammer.",
+    "Please beat the {A} with the hammer."
+  ],
+  "_note": "D3-12 attribute binding L2;判据=beat;由 suite/table.py 生成"
+}

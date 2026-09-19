@@ -1,0 +1,748 @@
+{
+ "base": [
+  "adjust_bottle",
+  "beat_block_hammer",
+  "blocks_ranking_rgb",
+  "blocks_ranking_size",
+  "click_alarmclock",
+  "click_bell",
+  "dump_bin_bigbin",
+  "grab_roller",
+  "handover_block",
+  "handover_mic",
+  "hanging_mug",
+  "lift_pot",
+  "move_can_pot",
+  "move_pillbottle_pad",
+  "move_playingcard_away",
+  "move_stapler_pad",
+  "open_laptop",
+  "open_microwave",
+  "pick_diverse_bottles",
+  "pick_dual_bottles",
+  "place_a2b_left",
+  "place_a2b_right",
+  "place_bread_basket",
+  "place_bread_skillet",
+  "place_burger_fries",
+  "place_can_basket",
+  "place_cans_plasticbox",
+  "place_container_plate",
+  "place_dual_shoes",
+  "place_empty_cup",
+  "place_fan",
+  "place_mouse_pad",
+  "place_object_basket",
+  "place_object_scale",
+  "place_object_stand",
+  "place_phone_stand",
+  "place_shoe",
+  "press_stapler",
+  "put_bottles_dustbin",
+  "put_object_cabinet",
+  "rotate_qrcode",
+  "scan_object",
+  "shake_bottle",
+  "shake_bottle_horizontally",
+  "stack_blocks_three",
+  "stack_blocks_two",
+  "stack_bowls_three",
+  "stack_bowls_two",
+  "stamp_seal",
+  "turn_switch"
+ ],
+ "scenes": [
+  {
+   "name": "grab_dumbbell",
+   "dim": "D1",
+   "tier": 1,
+   "ctx": "健身角",
+   "instr": "Pick up the {A}.",
+   "deps": [
+    8
+   ],
+   "dep_src": "table",
+   "smoke": "2/4",
+   "score": 0.6
+  },
+  {
+   "name": "move_can_coaster",
+   "dim": "D1",
+   "tier": 1,
+   "ctx": "床头药盒",
+   "instr": "Put the {A} on the coaster.",
+   "deps": [
+    26,
+    30
+   ],
+   "dep_src": "table",
+   "smoke": "2/2",
+   "score": 0.0
+  },
+  {
+   "name": "move_cup_pad",
+   "dim": "D1",
+   "tier": 1,
+   "ctx": "办公桌",
+   "instr": "Move the {A} onto the pad.",
+   "deps": [
+    16
+   ],
+   "dep_src": "table",
+   "smoke": "未跑（v1 沿用）",
+   "score": 0.95
+  },
+  {
+   "name": "place_teabox_scale",
+   "dim": "D1",
+   "tier": 1,
+   "ctx": "超市称重",
+   "instr": "Put the {A} on the scale.",
+   "deps": [
+    34
+   ],
+   "dep_src": "table",
+   "smoke": "2/2",
+   "score": 0.4
+  },
+  {
+   "name": "grasp_mallet_novel",
+   "dim": "D1",
+   "tier": 2,
+   "ctx": "工具台",
+   "instr": "Pick up the {A}.",
+   "deps": [
+    2,
+    8
+   ],
+   "dep_src": "table",
+   "smoke": "2/2",
+   "score": 0.9
+  },
+  {
+   "name": "lift_trophy",
+   "dim": "D1",
+   "tier": 2,
+   "ctx": "厨房备餐",
+   "instr": "Pick up the {A}.",
+   "deps": [
+    8
+   ],
+   "dep_src": "table",
+   "smoke": "2/2",
+   "score": 0.5
+  },
+  {
+   "name": "place_seal_coaster",
+   "dim": "D1",
+   "tier": 2,
+   "ctx": "厨房备餐",
+   "instr": "Put the {A} on the coaster.",
+   "deps": [
+    49,
+    30
+   ],
+   "dep_src": "table",
+   "smoke": "2/2",
+   "score": 0.05
+  },
+  {
+   "name": "place_teabox_skillet",
+   "dim": "D1",
+   "tier": 2,
+   "ctx": "厨房备餐",
+   "instr": "Put the {A} into the skillet.",
+   "deps": [
+    24
+   ],
+   "dep_src": "table",
+   "smoke": "2/2",
+   "score": 0.0
+  },
+  {
+   "name": "place_teabox_stand",
+   "dim": "D1",
+   "tier": 2,
+   "ctx": "书架",
+   "instr": "Put the {A} on the display stand.",
+   "deps": [
+    35
+   ],
+   "dep_src": "table",
+   "smoke": "2/2",
+   "score": 0.4
+  },
+  {
+   "name": "place_toycar_plasticbox",
+   "dim": "D1",
+   "tier": 2,
+   "ctx": "玄关",
+   "instr": "Put the {A} into the plastic box.",
+   "deps": [
+    33,
+    27
+   ],
+   "dep_src": "table",
+   "smoke": "2/2",
+   "score": 0.75
+  },
+  {
+   "name": "place_a2b_left_novel",
+   "dim": "D2",
+   "tier": 1,
+   "ctx": "通用桌面",
+   "instr": "Put the {A} to the left of the mug.",
+   "deps": [
+    21
+   ],
+   "dep_src": "table",
+   "smoke": "未跑（v1 沿用）",
+   "score": 0.8
+  },
+  {
+   "name": "place_a2b_right_novel",
+   "dim": "D2",
+   "tier": 1,
+   "ctx": "通用桌面",
+   "instr": "Put the {A} to the right of the mug.",
+   "deps": [
+    22
+   ],
+   "dep_src": "table",
+   "smoke": "未跑（v1 沿用）",
+   "score": 0.6
+  },
+  {
+   "name": "card_right_of_scanner",
+   "dim": "D2",
+   "tier": 2,
+   "ctx": "超市结账",
+   "instr": "Put the {A} to the right of the barcode scanner.",
+   "deps": [
+    41,
+    42,
+    22
+   ],
+   "dep_src": "table",
+   "smoke": "2/3",
+   "score": 0.4
+  },
+  {
+   "name": "phone_right_of_laptop",
+   "dim": "D2",
+   "tier": 2,
+   "ctx": "办公桌",
+   "instr": "Put the {A} to the right of the laptop.",
+   "deps": [
+    17,
+    36,
+    22
+   ],
+   "dep_src": "table",
+   "smoke": "2/3",
+   "score": 0.55
+  },
+  {
+   "name": "place_a2b_behind_novel",
+   "dim": "D2",
+   "tier": 2,
+   "ctx": "通用桌面",
+   "instr": "Put the {A} behind the bowl.",
+   "deps": [
+    21,
+    22
+   ],
+   "dep_src": "table",
+   "smoke": "2/3",
+   "score": 0.0
+  },
+  {
+   "name": "place_can_right_of_plasticbox",
+   "dim": "D2",
+   "tier": 2,
+   "ctx": "仓储上架",
+   "instr": "Put the {A} to the right of the plastic box.",
+   "deps": [
+    27,
+    21
+   ],
+   "dep_src": "table",
+   "smoke": "2/4",
+   "score": 0.55
+  },
+  {
+   "name": "place_cube_right_of_plate",
+   "dim": "D2",
+   "tier": 2,
+   "ctx": "餐桌摆盘",
+   "instr": "Put the {A} to the right of the plate.",
+   "deps": [
+    21,
+    22,
+    28
+   ],
+   "dep_src": "table",
+   "smoke": "2/4",
+   "score": 0.55
+  },
+  {
+   "name": "place_teabox_front_of_skillet",
+   "dim": "D2",
+   "tier": 2,
+   "ctx": "厨房备餐",
+   "instr": "Put the {A} in front of the skillet.",
+   "deps": [
+    24,
+    21
+   ],
+   "dep_src": "table",
+   "smoke": "2/2",
+   "score": 0.0
+  },
+  {
+   "name": "put_toycar_left_basket",
+   "dim": "D2",
+   "tier": 2,
+   "ctx": "家务分拣",
+   "instr": "Put the {A} into the left basket.",
+   "deps": [
+    33,
+    21
+   ],
+   "dep_src": "table",
+   "smoke": "2/3",
+   "score": 0.05
+  },
+  {
+   "name": "place_between_bowls",
+   "dim": "D2",
+   "tier": 3,
+   "ctx": "餐桌摆盘",
+   "instr": "Put the {A} between the two bowls.",
+   "deps": [
+    21,
+    22,
+    48
+   ],
+   "dep_src": "table",
+   "smoke": "2/2",
+   "score": 0.0
+  },
+  {
+   "name": "attr_bind_bottle",
+   "dim": "D3",
+   "tier": 1,
+   "ctx": "冰箱取饮",
+   "instr": "",
+   "deps": [
+    1,
+    19
+   ],
+   "dep_src": "renamed",
+   "smoke": "未跑（v1 沿用）",
+   "score": 0.95
+  },
+  {
+   "name": "attr_category_press_bell",
+   "dim": "D3",
+   "tier": 1,
+   "ctx": "前台服务",
+   "instr": "Press the {A}.",
+   "deps": [
+    6,
+    5
+   ],
+   "dep_src": "table",
+   "smoke": "2/3",
+   "score": 1.0
+  },
+  {
+   "name": "attr_category_can_plasticbox",
+   "dim": "D3",
+   "tier": 2,
+   "ctx": "仓储上架",
+   "instr": "Put the {A} into the plastic box.",
+   "deps": [
+    27,
+    19
+   ],
+   "dep_src": "table",
+   "smoke": "2/7",
+   "score": 0.4
+  },
+  {
+   "name": "attr_color_block_3way",
+   "dim": "D3",
+   "tier": 2,
+   "ctx": "积木码垛",
+   "instr": "Pick up the {A}.",
+   "deps": [
+    45,
+    9
+   ],
+   "dep_src": "table",
+   "smoke": "2/2",
+   "score": 0.75
+  },
+  {
+   "name": "attr_size_block_pick",
+   "dim": "D3",
+   "tier": 2,
+   "ctx": "积木码垛",
+   "instr": "Pick up the {A}.",
+   "deps": [
+    4,
+    45
+   ],
+   "dep_src": "table",
+   "smoke": "2/2",
+   "score": 0.95
+  },
+  {
+   "name": "attr_bind_soap_box",
+   "dim": "D3",
+   "tier": 3,
+   "ctx": "日用品收纳",
+   "instr": "",
+   "deps": [
+    40,
+    42
+   ],
+   "dep_src": "renamed",
+   "smoke": "未跑（v1 沿用）",
+   "score": 0.4
+  },
+  {
+   "name": "attr_color_bottle_basket",
+   "dim": "D3",
+   "tier": 3,
+   "ctx": "冰箱取饮",
+   "instr": "Put the {A} into the basket.",
+   "deps": [
+    19,
+    33
+   ],
+   "dep_src": "table",
+   "smoke": "2/6",
+   "score": 0.0
+  },
+  {
+   "name": "attr_size_rank_middle",
+   "dim": "D3",
+   "tier": 3,
+   "ctx": "家务分拣",
+   "instr": "Pick up the {A}.",
+   "deps": [
+    4,
+    28
+   ],
+   "dep_src": "table",
+   "smoke": "2/2",
+   "score": 0.05
+  },
+  {
+   "name": "ref_block_in_basket",
+   "dim": "D4",
+   "tier": 1,
+   "ctx": "家务分拣",
+   "instr": "Pick up the {A}.",
+   "deps": [
+    33
+   ],
+   "dep_src": "table",
+   "smoke": "2/3",
+   "score": 0.05
+  },
+  {
+   "name": "ref_block_on_plate",
+   "dim": "D4",
+   "tier": 1,
+   "ctx": "餐桌收拾",
+   "instr": "Pick up the {A}.",
+   "deps": [
+    28
+   ],
+   "dep_src": "table",
+   "smoke": "2/2",
+   "score": 0.0
+  },
+  {
+   "name": "ref_block_behind_can",
+   "dim": "D4",
+   "tier": 2,
+   "ctx": "通用桌面",
+   "instr": "Pick up the {A}.",
+   "deps": [
+    21,
+    22
+   ],
+   "dep_src": "table",
+   "smoke": "2/3",
+   "score": 0.0
+  },
+  {
+   "name": "ref_cup_on_tray",
+   "dim": "D4",
+   "tier": 2,
+   "ctx": "快餐取餐",
+   "instr": "Pick up the {A}.",
+   "deps": [
+    25
+   ],
+   "dep_src": "table",
+   "smoke": "2/2",
+   "score": 0.0
+  },
+  {
+   "name": "ref_leftmost_of_four",
+   "dim": "D4",
+   "tier": 2,
+   "ctx": "积木码垛",
+   "instr": "Pick up the {A}.",
+   "deps": [
+    3,
+    45
+   ],
+   "dep_src": "table",
+   "smoke": "2/2",
+   "score": 0.7
+  },
+  {
+   "name": "ref_mug_next_to_bowl",
+   "dim": "D4",
+   "tier": 2,
+   "ctx": "餐桌收拾",
+   "instr": "Pick up the {A}.",
+   "deps": [
+    11,
+    48
+   ],
+   "dep_src": "table",
+   "smoke": "2/3",
+   "score": 0.45
+  },
+  {
+   "name": "ref_not_the_red_one",
+   "dim": "D4",
+   "tier": 2,
+   "ctx": "积木码垛",
+   "instr": "Pick up the {A}.",
+   "deps": [
+    3
+   ],
+   "dep_src": "table",
+   "smoke": "2/2",
+   "score": 0.4
+  },
+  {
+   "name": "ref_second_from_left",
+   "dim": "D4",
+   "tier": 2,
+   "ctx": "积木码垛",
+   "instr": "Pick up the {A}.",
+   "deps": [
+    3,
+    45
+   ],
+   "dep_src": "table",
+   "smoke": "2/2",
+   "score": 0.15
+  },
+  {
+   "name": "move_cube_on_plate_to_pad",
+   "dim": "D4",
+   "tier": 3,
+   "ctx": "餐桌收拾",
+   "instr": "",
+   "deps": [
+    16,
+    28
+   ],
+   "dep_src": "renamed",
+   "smoke": "未跑（v1 沿用）",
+   "score": 0.0
+  },
+  {
+   "name": "ref_cube_on_plate_to_pad",
+   "dim": "D4",
+   "tier": 3,
+   "ctx": "餐桌收拾",
+   "instr": "Move the {A} onto the pad.",
+   "deps": [
+    16,
+    28
+   ],
+   "dep_src": "table",
+   "smoke": "2/8",
+   "score": 0.0
+  },
+  {
+   "name": "adjust_bottle_dustbin",
+   "dim": "D5",
+   "tier": 2,
+   "ctx": "垃圾清理",
+   "instr": "",
+   "deps": [
+    1,
+    39
+   ],
+   "dep_src": "v1",
+   "smoke": "未跑（v1 沿用）",
+   "score": 0.95
+  },
+  {
+   "name": "click_bell_press_stapler",
+   "dim": "D5",
+   "tier": 2,
+   "ctx": "前台服务",
+   "instr": "",
+   "deps": [
+    6,
+    38
+   ],
+   "dep_src": "v1",
+   "smoke": "未跑（v1 沿用）",
+   "score": 0.15
+  },
+  {
+   "name": "serve_teabox_then_ring",
+   "dim": "D5",
+   "tier": 2,
+   "ctx": "厨房备餐",
+   "instr": "Put the {A} into the basket, then press the bell.",
+   "deps": [
+    23,
+    6
+   ],
+   "dep_src": "table",
+   "smoke": "2/2",
+   "score": 0.0
+  },
+  {
+   "name": "stapler_pad_press",
+   "dim": "D5",
+   "tier": 2,
+   "ctx": "办公桌",
+   "instr": "",
+   "deps": [
+    16,
+    38
+   ],
+   "dep_src": "v1",
+   "smoke": "未跑（v1 沿用）",
+   "score": 1.0
+  },
+  {
+   "name": "pack_toycar_then_ring",
+   "dim": "D5",
+   "tier": 3,
+   "ctx": "玄关",
+   "instr": "Put the {A} into the plastic box, then press the bell.",
+   "deps": [
+    33,
+    27,
+    6
+   ],
+   "dep_src": "table",
+   "smoke": "2/2",
+   "score": 0.05
+  },
+  {
+   "name": "move_cup_pad_mix",
+   "dim": "D7",
+   "tier": 2,
+   "ctx": "办公桌",
+   "instr": "Move the {A} onto the pad.",
+   "deps": [
+    16
+   ],
+   "dep_src": "table",
+   "smoke": "2/2",
+   "score": 0.85
+  },
+  {
+   "name": "ref_block_on_plate_mix",
+   "dim": "D7",
+   "tier": 2,
+   "ctx": "餐桌收拾",
+   "instr": "Pick up the {A}.",
+   "deps": [
+    28
+   ],
+   "dep_src": "table",
+   "smoke": "2/2",
+   "score": 0.0
+  },
+  {
+   "name": "attr_teabox_basket_then_ring",
+   "dim": "D7",
+   "tier": 3,
+   "ctx": "厨房备餐",
+   "instr": "Put the {A} into the basket, then press the bell.",
+   "deps": [
+    23,
+    6,
+    19
+   ],
+   "dep_src": "table",
+   "smoke": "2/3",
+   "score": 0.0
+  },
+  {
+   "name": "card_right_of_scanner_mix",
+   "dim": "D7",
+   "tier": 3,
+   "ctx": "超市结账",
+   "instr": "Put the {A} to the right of the barcode scanner.",
+   "deps": [
+    41,
+    42,
+    22
+   ],
+   "dep_src": "table",
+   "smoke": "2/3",
+   "score": 0.1
+  },
+  {
+   "name": "place_teabox_skillet_mix",
+   "dim": "D7",
+   "tier": 3,
+   "ctx": "厨房备餐",
+   "instr": "Put the {A} into the skillet.",
+   "deps": [
+    24
+   ],
+   "dep_src": "table",
+   "smoke": "2/2",
+   "score": 0.0
+  },
+  {
+   "name": "put_toycar_left_basket_mix",
+   "dim": "D7",
+   "tier": 3,
+   "ctx": "家务分拣",
+   "instr": "Put the {A} into the left basket.",
+   "deps": [
+    33,
+    21
+   ],
+   "dep_src": "table",
+   "smoke": "2/4",
+   "score": 0.2
+  },
+  {
+   "name": "roller_to_plate_mix",
+   "dim": "D7",
+   "tier": 3,
+   "ctx": "厨房备餐",
+   "instr": "Put the {A} on the plate.",
+   "deps": [
+    8,
+    28
+   ],
+   "dep_src": "table",
+   "smoke": "2/5",
+   "score": 0.15
+  }
+ ]
+}

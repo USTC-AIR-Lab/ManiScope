@@ -1,0 +1,12 @@
+{
+  "seen": [
+    "Pick up the {A}.",
+    "Grab the {A}.",
+    "Pick up the {A} with {a}."
+  ],
+  "unseen": [
+    "Pick up the {A}.",
+    "Please pick up the {A}."
+  ],
+  "_note": "D1-09 skill x object L2;判据=lift;由 suite/table.py 生成"
+}

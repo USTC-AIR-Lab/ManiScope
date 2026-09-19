@@ -1,0 +1,3 @@
+# Install the pinned opendm backend in its own environment following its upstream
+# pyproject/lockfile. This file intentionally does not override its torch build.
+# https://github.com/dexmal/opendm

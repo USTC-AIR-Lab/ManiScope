@@ -1,0 +1,5 @@
+requests>=2.31,<3
+Pillow>=10
+msgpack>=1
+websocket-client>=1.7
+websockets>=12

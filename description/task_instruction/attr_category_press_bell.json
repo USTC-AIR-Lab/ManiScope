@@ -1,0 +1,11 @@
+{
+  "seen": [
+    "Press the {A}.",
+    "Press the {A} with {a}."
+  ],
+  "unseen": [
+    "Press the {A}.",
+    "Please press the {A}."
+  ],
+  "_note": "D3-10 attribute binding L1;判据=press;由 suite/table.py 生成"
+}

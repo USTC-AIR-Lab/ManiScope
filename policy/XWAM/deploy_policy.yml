@@ -1,0 +1,14 @@
+# X-WAM (sharinka0715/X-WAM-checkpoints, robotwin_sft) 单内核 eval 基础字段。
+# 场景/episode 数由 run_suite.sh 通过 --overrides 覆盖，这里只放策略协议字段。
+policy_name: XWAM
+task_name: null
+task_config: demo_clean
+ckpt_setting: xwam
+seed: 0
+instruction_type: unseen
+
+# 推理服务（见 suite/launch/start_xwam.sh）
+base_url: http://localhost:7997
+# 官方 robotwin_client 默认：每次推理执行前 32 步（ee 控制），cfg=0
+action_length: 32
+cfg: 0.0

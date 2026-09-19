@@ -1,0 +1,12 @@
+{
+  "seen": [
+    "Put the {A} on the scale.",
+    "Place the {A} on the scale.",
+    "Put the {A} on the scale with {a}."
+  ],
+  "unseen": [
+    "Put the {A} on the scale.",
+    "Please put the {A} on the scale."
+  ],
+  "_note": "D1-07 skill x object L1;判据=on;由 suite/table.py 生成"
+}

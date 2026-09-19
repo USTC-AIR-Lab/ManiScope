@@ -1,0 +1,12 @@
+{
+  "seen": [
+    "Put the {A} between the two bowls.",
+    "Place the {A} between the two bowls.",
+    "Put the {A} between the two bowls with {a}."
+  ],
+  "unseen": [
+    "Put the {A} between the two bowls.",
+    "Please put the {A} between the two bowls."
+  ],
+  "_note": "D2-05 skill x spatial L3;判据=between;由 suite/table.py 生成"
+}

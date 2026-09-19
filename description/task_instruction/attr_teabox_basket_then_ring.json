@@ -1,0 +1,12 @@
+{
+  "seen": [
+    "Put the {A} into the basket, then press the bell.",
+    "Place the {A} into the basket, then press the bell.",
+    "Put the {A} into the basket, then press the bell with {a}."
+  ],
+  "unseen": [
+    "Put the {A} into the basket, then press the bell.",
+    "Please put the {A} into the basket, then press the bell."
+  ],
+  "_note": "D7-06 mixture L3;判据=seq;由 suite/table.py 生成"
+}

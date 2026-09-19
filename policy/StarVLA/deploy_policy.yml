@@ -1,0 +1,17 @@
+# StarVLA Qwen3-VL-OFT (StarVLA/Qwen3-VL-OFT-RoboTwin2-All) 单内核 eval 基础字段。
+# 场景/episode 数由 run_suite.sh 通过 --overrides 覆盖，这里只放策略协议字段。
+policy_name: StarVLA
+task_name: null
+task_config: demo_clean
+ckpt_setting: starvla
+seed: 0
+instruction_type: unseen
+
+# 推理服务（openpi pytorch 起，见 suite/launch/start_starvla.sh（websocket 服务 + HTTP 桥接））
+base_url: http://localhost:7970
+cameras: "head_camera_rgb,left_camera_rgb,right_camera_rgb"
+# StarVLA 该 checkpoint 的 action horizon 是 50
+action_horizon: 50
+api_style: v1
+# pi0.5 输出绝对 qpos
+action_mode: absolute

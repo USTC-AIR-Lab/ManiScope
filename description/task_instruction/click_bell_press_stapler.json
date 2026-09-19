@@ -1,0 +1,25 @@
+{
+  "full_description": "first click the bell, then press the stapler",
+  "_note": "click_bell_press_stapler（技能x技能·跨物体时序）。click_bell 与 press_stapler 各自在训练的 50 个任务里，但从未在同一场景里串联过。两个都是按压型原语（物体静止、不需抓起），是这套环境里最稳的动作 —— 前两版用微波炉和抽屉都栽在抓取/容器上。",
+  "schema": "{A} notifies the bell, {B} notifies the stapler, {a} notifies the arm clicking the bell, {b} notifies the arm pressing the stapler",
+  "preference": "num of words should not exceed 18",
+  "seen": [
+    "Click {A}, then press {B}.",
+    "Ring {A} first, then push down on {B}.",
+    "Press {A}, then press {B}.",
+    "Use {a} to click {A}, then use {b} to press {B}.",
+    "First ring {A}, afterwards press {B}.",
+    "Tap {A}, then push {B} down.",
+    "Click {A} and then press {B}.",
+    "Ring {A}, then press down on {B}.",
+    "Hit {A} first, then press {B}.",
+    "Push {A} down, then push {B} down."
+  ],
+  "unseen": [
+    "Click {A} first, then press {B}.",
+    "Ring {A} and then push {B} down.",
+    "After clicking {A}, press {B}.",
+    "Tap {A}, afterwards press down on {B}.",
+    "Press {A} then {B}, in that order."
+  ]
+}

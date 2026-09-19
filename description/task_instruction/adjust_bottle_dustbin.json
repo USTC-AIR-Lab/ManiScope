@@ -1,0 +1,24 @@
+{
+  "full_description": "First stand the fallen bottle upright with the left arm, then drop it into the dustbin",
+  "schema": "{A} notifies the bottle, {B} notifies the dustbin, {a} notifies the arm",
+  "preference": "num of words should not exceed 20",
+  "seen": [
+    "Stand {A} upright, then put it into {B}.",
+    "Use {a} to set {A} head-up and drop it into {B}.",
+    "Lift {A} head-up from the table, then throw it into {B}.",
+    "Make {A} upright first, then place it into {B}.",
+    "With {a}, right {A} and then discard it into {B}.",
+    "Set {A} upright and put it in {B}.",
+    "Pick {A} up head-up, then drop it in {B}.",
+    "Adjust {A} to stand, then toss it into {B}.",
+    "Use {a} to upright {A} before putting it into {B}.",
+    "Right {A} on the table, then place it inside {B}."
+  ],
+  "unseen": [
+    "Stand the fallen {A} up, then throw it away into {B}.",
+    "First make {A} head-up with {a}, then dispose of it in {B}.",
+    "Upright {A} and then drop it into {B}.",
+    "Turn {A} head-up, afterwards put it into {B}.",
+    "Get {A} standing, then discard it in {B}."
+  ]
+}

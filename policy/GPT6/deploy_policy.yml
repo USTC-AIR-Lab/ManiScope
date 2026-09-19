@@ -1,0 +1,14 @@
+# GPT-6 Astra（OpenToken /responses，reasoning.effort=high）经本地桥接 + SSH 反向隧道的 EEF 工具调用策略。
+# 场景/episode 数由 run_suite.sh 通过 --overrides 覆盖；正式口径：前 5 个冻结种子 × 每场景 5 条，全录像。
+policy_name: GPT6
+task_name: null
+task_config: demo_clean
+ckpt_setting: gpt6
+seed: 0
+instruction_type: unseen
+
+# 桥接地址由 run_suite 按 PORT 传 --base_url；令牌文件由环境变量 GPT6_BRIDGE_TOKEN_FILE 提供
+base_url: http://127.0.0.1:18770
+bridge_token_file: null
+# 每条 episode 最多 120 次模型调用（沿用 interface_v4 的上限）
+max_llm_calls: 120

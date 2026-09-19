@@ -1,0 +1,25 @@
+{
+  "full_description": "pick up the object matching both the stated color and category",
+  "_note": "attr_bind_soap_box（属性x属性）。三个物体：目标(C1,K1)、同色异类(C1,K2)、同类异色(C2,K1)。只按颜色=50%，只按类别=50%，必须同时绑定。前一版用杯子/马克杯，抓取产出率一直 1/8（逐步探针定位到第1步抓取），换成训练池里确定好抓的 107_soap / 112_tea-box / 113_coffee-box。{A} 传字面串如 'yellow soap'，非路径值不加冠词，模板自带 'the'。",
+  "schema": "{A} notifies the color and category of the target object, e.g. 'yellow soap'; {a} notifies the arm",
+  "preference": "num of words should not exceed 12",
+  "seen": [
+    "Pick up the {A}.",
+    "Lift the {A}.",
+    "Grab the {A}.",
+    "Use {a} to pick up the {A}.",
+    "Take the {A} from the table.",
+    "Pick the {A} up off the table.",
+    "With {a}, lift the {A}.",
+    "Grab the {A} with {a}.",
+    "Lift the {A} off the table.",
+    "Pick up the {A} from the table."
+  ],
+  "unseen": [
+    "Pick up the {A} please.",
+    "Raise the {A}.",
+    "Use {a} to lift the {A}.",
+    "Take hold of the {A}.",
+    "Pick the {A} up."
+  ]
+}

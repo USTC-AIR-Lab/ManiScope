@@ -1,0 +1,661 @@
+meta:
+  episodes: 50
+  task_config: demo_clean
+  instruction_type: unseen
+  smoke_threshold: Historical expert feasibility screening; frozen seeds are bundled.
+  formal_scenes: 48
+  formal_note: 'ManipScope formal48-v1: frozen 48-scene membership. Historical scene
+    changes are not silently included.'
+tiers:
+  L1: 单点替换 —— 克隆一个训练任务只动一个变量，干扰物 0-1 个，单段动作
+  L2: 一跳 + 干扰 —— 一个新变量 + 只差一个属性的干扰物，或两段动作
+  L3: 双约束 / 双段 —— 两个约束同时成立，或两段动作有真实先后依赖
+  L4: 复合深度 —— 三个及以上约束，或需要重复执行 / 多目标分派
+axes:
+  skill_x_object:
+    dim: D1
+    desc: 训练过的技能迁到没见过的物体
+    scenes:
+    - name: grab_dumbbell
+      smoke: 2/4
+      tier: 1
+      source: generated
+      criterion: lift
+      context: 健身角
+      baseline:
+      - grab_roller
+      deps:
+      - 8
+    - name: move_can_coaster
+      smoke: 2/2
+      tier: 1
+      source: generated
+      criterion: 'on'
+      context: 床头药盒
+      baseline:
+      - place_can_basket
+      - place_empty_cup
+      deps:
+      - 26
+      - 30
+    - name: move_cup_pad
+      smoke: 未跑（v1 沿用）
+      tier: 1
+      source: handwritten
+      criterion: handwritten
+      context: 办公桌
+      baseline:
+      - move_stapler_pad
+      deps:
+      - 16
+      note: 手写克隆 move_stapler_pad，判据含姿态与双爪张开
+    - name: place_teabox_scale
+      smoke: 2/2
+      tier: 1
+      source: generated
+      criterion: 'on'
+      context: 超市称重
+      baseline:
+      - place_object_scale
+      deps:
+      - 34
+    - name: grasp_mallet_novel
+      smoke: 2/2
+      tier: 2
+      source: generated
+      criterion: lift
+      context: 工具台
+      baseline:
+      - beat_block_hammer
+      - grab_roller
+      deps:
+      - 2
+      - 8
+    - name: lift_trophy
+      smoke: 2/2
+      tier: 2
+      source: generated
+      criterion: lift
+      context: 厨房备餐
+      baseline:
+      - grab_roller
+      deps:
+      - 8
+    - name: place_seal_coaster
+      smoke: 2/2
+      tier: 2
+      source: generated
+      criterion: 'on'
+      context: 厨房备餐
+      baseline:
+      - stamp_seal
+      - place_empty_cup
+      deps:
+      - 49
+      - 30
+    - name: place_teabox_skillet
+      smoke: 2/2
+      tier: 2
+      source: generated
+      criterion: in
+      context: 厨房备餐
+      baseline:
+      - place_bread_skillet
+      deps:
+      - 24
+    - name: place_teabox_stand
+      smoke: 2/2
+      tier: 2
+      source: generated
+      criterion: 'on'
+      context: 书架
+      baseline:
+      - place_object_stand
+      deps:
+      - 35
+    - name: place_toycar_plasticbox
+      smoke: 2/2
+      tier: 2
+      source: generated
+      criterion: in
+      context: 玄关
+      baseline:
+      - place_object_basket
+      - place_cans_plasticbox
+      deps:
+      - 33
+      - 27
+  skill_x_spatial:
+    dim: D2
+    desc: 空间关系迁到没见过的物体对 / 没训练过的关系词
+    scenes:
+    - name: place_a2b_left_novel
+      smoke: 未跑（v1 沿用）
+      tier: 1
+      source: handwritten
+      criterion: handwritten
+      context: 通用桌面
+      baseline:
+      - place_a2b_left
+      deps:
+      - 21
+      note: 手写克隆 place_a2b_left，判据逐字相同
+    - name: place_a2b_right_novel
+      smoke: 未跑（v1 沿用）
+      tier: 1
+      source: handwritten
+      criterion: handwritten
+      context: 通用桌面
+      baseline:
+      - place_a2b_right
+      deps:
+      - 22
+      note: 手写克隆 place_a2b_right
+    - name: card_right_of_scanner
+      smoke: 2/3
+      tier: 2
+      source: generated
+      criterion: rel
+      context: 超市结账
+      baseline:
+      - rotate_qrcode
+      - scan_object
+      - place_a2b_right
+      deps:
+      - 41
+      - 42
+      - 22
+      note: rotate_qrcode 的物体 + 空间关系。rotate_qrcode 此前零覆盖
+    - name: phone_right_of_laptop
+      smoke: 2/3
+      tier: 2
+      source: generated
+      criterion: rel
+      context: 办公桌
+      baseline:
+      - open_laptop
+      - place_phone_stand
+      - place_a2b_right
+      deps:
+      - 17
+      - 36
+      - 22
+      note: 用户提的 open_laptop+放手机。开盖需要关节开度判据(暂无)，先做空间关系版
+    - name: place_can_right_of_plasticbox
+      smoke: 2/4
+      tier: 2
+      source: generated
+      criterion: rel
+      context: 仓储上架
+      baseline:
+      - place_cans_plasticbox
+      - place_a2b_left
+      deps:
+      - 27
+      - 21
+      note: 方向从 left 翻成 right：收纳箱在最右、往左放时落点跨度最大，专家稳定 0/8（可达范围 |x|<=0.22 放不下）。翻成收纳箱在左、往右放，语义等价但几何可行。
+    - name: place_cube_right_of_plate
+      smoke: 2/4
+      tier: 2
+      source: generated
+      criterion: rel
+      context: 餐桌摆盘
+      baseline:
+      - place_a2b_left
+      - place_a2b_right
+      - place_container_plate
+      deps:
+      - 21
+      - 22
+      - 28
+    - name: place_teabox_front_of_skillet
+      smoke: 2/2
+      tier: 2
+      source: generated
+      criterion: rel
+      context: 厨房备餐
+      baseline:
+      - place_bread_skillet
+      - place_a2b_left
+      deps:
+      - 24
+      - 21
+    - name: put_toycar_left_basket
+      smoke: 2/4
+      tier: 2
+      source: generated
+      criterion: in
+      context: 家务分拣
+      baseline:
+      - place_object_basket
+      - place_a2b_left
+      deps:
+      - 33
+      - 21
+    - name: place_between_bowls
+      smoke: 2/2
+      tier: 3
+      source: generated
+      criterion: between
+      context: 餐桌摆盘
+      baseline:
+      - place_a2b_left
+      - place_a2b_right
+      - stack_bowls_two
+      deps:
+      - 21
+      - 22
+      - 48
+  attribute_binding:
+    dim: D3
+    desc: 必须解析属性词才能在干扰物中选对（5 类属性 × 4 类动作）
+    scenes:
+    - name: attr_bind_bottle
+      smoke: 未跑（v1 沿用）
+      tier: 1
+      source: handwritten
+      criterion: handwritten
+      context: 冰箱取饮
+      baseline:
+      - adjust_bottle
+      - pick_diverse_bottles
+      deps:
+      - 1
+      - 19
+      note: 手写，含 ATTR_BIND_LOG 诊断
+    - name: attr_category_press_bell
+      smoke: 2/3
+      tier: 1
+      source: generated
+      criterion: press
+      context: 前台服务
+      baseline:
+      - click_bell
+      - click_alarmclock
+      deps:
+      - 6
+      - 5
+      note: 按压型动作上的属性绑定 —— 不涉及抓取，语言信号最干净
+    - name: attr_category_can_plasticbox
+      smoke: 2/7
+      tier: 2
+      source: generated
+      criterion: in
+      context: 仓储上架
+      baseline:
+      - place_cans_plasticbox
+      - pick_diverse_bottles
+      deps:
+      - 27
+      - 19
+      note: 类别属性 + 容器动作
+    - name: attr_color_beat_block
+      smoke: 3/5
+      tier: 2
+      source: generated
+      criterion: beat
+      context: 积木码垛
+      baseline:
+      - beat_block_hammer
+      - stack_blocks_three
+      deps:
+      - 2
+      - 45
+      note: 颜色选紫/青/黄 —— 训练集里方块基本是红/蓝/绿，少见色更能考「按词选」而不是按先验蒙
+    - name: attr_color_block_3way
+      smoke: 2/2
+      tier: 2
+      source: generated
+      criterion: lift
+      context: 积木码垛
+      baseline:
+      - stack_blocks_three
+      - handover_block
+      deps:
+      - 45
+      - 9
+      note: 三路颜色干扰，随机基线 33%
+    - name: attr_size_beat_smaller
+      smoke: 3/3
+      tier: 2
+      source: generated
+      criterion: beat
+      context: 积木码垛
+      baseline:
+      - beat_block_hammer
+      - blocks_ranking_size
+      deps:
+      - 2
+      - 4
+      note: 同色异尺寸，唯一线索是大小
+    - name: attr_size_block_pick
+      smoke: 2/2
+      tier: 2
+      source: generated
+      criterion: lift
+      context: 积木码垛
+      baseline:
+      - blocks_ranking_size
+      - stack_blocks_three
+      deps:
+      - 4
+      - 45
+      note: 尺寸属性。用裸方块 + lift 判据：方块能抓能举，但过不了 place_actor(实测 0-1/10)，所以尺寸这一维只能做纯抓取；容器动作那一维由
+        D3-05/D3-11 承担
+    - name: attr_bind_soap_box
+      smoke: 未跑（v1 沿用）
+      tier: 3
+      source: handwritten
+      criterion: handwritten
+      context: 日用品收纳
+      baseline:
+      - put_object_cabinet
+      - scan_object
+      deps:
+      - 40
+      - 42
+      note: 手写，颜色×类别三元组 + 诊断日志
+    - name: attr_size_rank_middle
+      smoke: 2/2
+      tier: 3
+      source: generated
+      criterion: lift
+      context: 家务分拣
+      baseline:
+      - blocks_ranking_size
+      - place_container_plate
+      deps:
+      - 4
+      - 28
+      note: 尺寸序位（三选一的中间档），比二选一的大/小难一级
+  instruction_structure:
+    dim: D4
+    desc: 必须解析指代结构才能锁定目标（嵌套/序位/序数/邻接/否定）
+    scenes:
+    - name: ref_block_on_plate
+      smoke: 2/2
+      tier: 1
+      source: generated
+      criterion: lift
+      context: 餐桌收拾
+      baseline:
+      - place_container_plate
+      deps:
+      - 28
+      note: 两块外观全同，唯一线索是「在盘子上」这个关系
+    - name: ref_block_behind_can
+      smoke: 2/3
+      tier: 2
+      source: generated
+      criterion: lift
+      context: 通用桌面
+      baseline:
+      - place_a2b_left
+      - place_a2b_right
+      deps:
+      - 21
+      - 22
+    - name: ref_cup_on_tray
+      smoke: 2/2
+      tier: 2
+      source: generated
+      criterion: lift
+      context: 快餐取餐
+      baseline:
+      - place_burger_fries
+      deps:
+      - 25
+    - name: ref_leftmost_of_four
+      smoke: 2/2
+      tier: 2
+      source: generated
+      criterion: lift
+      context: 积木码垛
+      baseline:
+      - blocks_ranking_rgb
+      - stack_blocks_three
+      deps:
+      - 3
+      - 45
+      note: 四选一的序位，比三选一难一级
+    - name: ref_mug_next_to_bowl
+      smoke: 2/3
+      tier: 2
+      source: generated
+      criterion: lift
+      context: 餐桌收拾
+      baseline:
+      - hanging_mug
+      - stack_bowls_two
+      deps:
+      - 11
+      - 48
+    - name: ref_not_the_red_one
+      smoke: 2/2
+      tier: 2
+      source: generated
+      criterion: lift
+      context: 积木码垛
+      baseline:
+      - blocks_ranking_rgb
+      deps:
+      - 3
+      note: 否定式指代 —— 旧套件完全没有这一类
+    - name: ref_second_from_left
+      smoke: 2/2
+      tier: 2
+      source: generated
+      criterion: lift
+      context: 积木码垛
+      baseline:
+      - blocks_ranking_rgb
+      - stack_blocks_three
+      deps:
+      - 3
+      - 45
+      note: 序位；MIRROR 必须关，镜像会改答案
+  skill_x_skill_temporal:
+    dim: D5
+    desc: 两个训练过的技能串联，训练里从未融合，顺序有真实依赖
+    scenes:
+    - name: adjust_bottle_dustbin
+      smoke: 2/2
+      tier: 2
+      source: handwritten
+      criterion: handwritten
+      context: 垃圾清理
+      baseline:
+      - adjust_bottle
+      - put_bottles_dustbin
+      deps:
+      - 1
+      - 39
+      note: 手写，两段 stage 判据
+    - name: click_bell_press_stapler
+      smoke: 未跑（v1 沿用）
+      tier: 2
+      source: handwritten
+      criterion: handwritten
+      context: 前台服务
+      baseline:
+      - click_bell
+      - press_stapler
+      deps:
+      - 6
+      - 38
+      note: 手写，跨物体按压时序
+    - name: serve_teabox_then_ring
+      smoke: 2/2
+      tier: 2
+      source: generated
+      criterion: seq
+      context: 厨房备餐
+      baseline:
+      - place_bread_basket
+      - click_bell
+      deps:
+      - 23
+      - 6
+      note: 上餐后按铃叫号
+    - name: stapler_pad_press
+      smoke: 未跑（v1 沿用）
+      tier: 2
+      source: handwritten
+      criterion: handwritten
+      context: 办公桌
+      baseline:
+      - move_stapler_pad
+      - press_stapler
+      deps:
+      - 16
+      - 38
+      note: 手写，stage 序判据 + 分段指令
+    - name: lift_pot_to_pad
+      smoke: 3/10
+      tier: 3
+      source: generated
+      criterion: dual_carry_to
+      context: 厨房备餐
+      baseline:
+      - lift_pot
+      - move_stapler_pad
+      deps:
+      - 12
+      - 16
+      note: 用户提的 lift_pot 组合版：双臂各抓一个把手抬起，再一起送到垫子上松手
+    - name: pack_toycar_then_ring
+      smoke: 2/2
+      tier: 3
+      source: generated
+      criterion: seq
+      context: 玄关
+      baseline:
+      - place_object_basket
+      - place_cans_plasticbox
+      - click_bell
+      deps:
+      - 33
+      - 27
+      - 6
+  mixture:
+    dim: D7
+    desc: 两条以上维度叠加，复合深度阶梯
+    scenes:
+    - name: move_cup_pad_mix
+      smoke: 2/2
+      tier: 2
+      source: generated
+      criterion: 'on'
+      context: 办公桌
+      baseline:
+      - move_stapler_pad
+      deps:
+      - 16
+      note: 混合维度：源场景 move_cup_pad + 一个语义无关的干扰物（071_can）。办公桌上多一个易拉罐。判据/指令/依赖全部继承源场景，只多干扰物
+        —— 和源场景的分差就是「干扰物 + 背景变化」这一维的代价。
+    - name: ref_block_on_plate_mix
+      smoke: 2/2
+      tier: 2
+      source: generated
+      criterion: lift
+      context: 餐桌收拾
+      baseline:
+      - place_container_plate
+      deps:
+      - 28
+      note: 混合维度：源场景 ref_block_on_plate + 一个语义无关的干扰物（057_toycar）。桌上多一个玩具车。判据/指令/依赖全部继承源场景，只多干扰物
+        —— 和源场景的分差就是「干扰物 + 背景变化」这一维的代价。
+    - name: attr_teabox_basket_then_ring
+      smoke: 2/3
+      tier: 3
+      source: generated
+      criterion: seq
+      context: 厨房备餐
+      baseline:
+      - place_bread_basket
+      - click_bell
+      - pick_diverse_bottles
+      deps:
+      - 23
+      - 6
+      - 19
+      note: 属性 × 时序
+    - name: card_right_of_scanner_mix
+      smoke: 2/3
+      tier: 3
+      source: generated
+      criterion: rel
+      context: 超市结账
+      baseline:
+      - rotate_qrcode
+      - scan_object
+      - place_a2b_right
+      deps:
+      - 41
+      - 42
+      - 22
+      note: 混合维度：源场景 card_right_of_scanner + 一个语义无关的干扰物（071_can）。收银台上多一个易拉罐。判据/指令/依赖全部继承源场景，只多干扰物
+        —— 和源场景的分差就是「干扰物 + 背景变化」这一维的代价。
+    - name: place_teabox_skillet_mix
+      smoke: 2/2
+      tier: 3
+      source: generated
+      criterion: in
+      context: 厨房备餐
+      baseline:
+      - place_bread_skillet
+      deps:
+      - 24
+      note: 混合维度：源场景 place_teabox_skillet + 一个语义无关的干扰物（073_rubikscube）。灶台上多一个魔方。判据/指令/依赖全部继承源场景，只多干扰物
+        —— 和源场景的分差就是「干扰物 + 背景变化」这一维的代价。
+    - name: put_toycar_left_basket_mix
+      smoke: 2/6
+      tier: 3
+      source: generated
+      criterion: in
+      context: 家务分拣
+      baseline:
+      - place_object_basket
+      - place_a2b_left
+      deps:
+      - 33
+      - 21
+      note: 混合维度：源场景 put_toycar_left_basket + 一个语义无关的干扰物（112_tea-box）。地上多一个茶叶盒。判据/指令/依赖全部继承源场景，只多干扰物
+        —— 和源场景的分差就是「干扰物 + 背景变化」这一维的代价。
+    - name: roller_to_plate_mix
+      smoke: 2/5
+      tier: 3
+      source: generated
+      criterion: 'on'
+      context: 厨房备餐
+      baseline:
+      - grab_roller
+      - place_container_plate
+      deps:
+      - 8
+      - 28
+      note: 混合维度：源场景 roller_to_plate + 一个语义无关的干扰物（112_tea-box）。备餐台上多一个茶叶盒。判据/指令/依赖全部继承源场景，只多干扰物
+        —— 和源场景的分差就是「干扰物 + 背景变化」这一维的代价。
+skill_x_scene:
+  desc: 同一场景在分布偏移下（随机背景/光照/桌高，关掉杂乱物）。不新增场景，只换 task_config。
+  task_config: _rand_noclutter
+  note: 必须用 _rand_noclutter 而不是 demo_randomized：杂乱桌面撒的干扰物沉降不稳会抛 UnStableError，且发生在种子被接受**之后**的
+    setup_demo(is_test=True)，不在 eval_policy 的 try 覆盖内，会直接打断整轮。
+  anchors:
+  - move_cup_pad
+  - attr_bind_bottle
+  - ref_block_on_plate
+  - place_a2b_left_novel
+  - stapler_pad_press
+  - ref_second_from_left
+excluded_low_expert_yield:
+  reason: 脚本专家产出率 < 30%（用户设定门槛），种子集会被筛成极窄子集、成绩没有代表性；非因分数低而排除。诊断：place_actor 在这几种几何下规划静默失败。
+  measured:
+    place_a2b_behind_novel: 4/26 ~ 15%
+    attr_color_bottle_basket: 4/26 ~ 15%
+    ref_cube_on_plate_to_pad: 3/26 ~ 12%
+  scenes:
+  - attr_color_bottle_basket
+  - place_a2b_behind_novel
+  - ref_cube_on_plate_to_pad
+  status: 配置文件已于 2026-09-16 删除（envs/description/task_config/table.py），仅保留此记录说明排除原因。

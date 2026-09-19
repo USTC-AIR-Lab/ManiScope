@@ -1,0 +1,10 @@
+{
+  "project": "ManipScope",
+  "source_project": "RoboTwin compositional evaluation development snapshot",
+  "source_commit": "1ba9f79b1ad691b877bbeddbd4a5d876539189f3",
+  "source_state": "working tree including uncommitted formal-scene cleanup",
+  "history": "new independent repository; original Git metadata not copied",
+  "protocol": "formal48-v1",
+  "vendor_curobo_tree_sha256": "8a829af75778c98bfb81289135c7f8e50c0985aa90218b1db8da53c714111116",
+  "instruction_recovery": "adjust_bottle_dustbin and staged templates restored as regular files from the corresponding task source; no replacement text invented"
+}
