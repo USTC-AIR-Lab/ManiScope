@@ -1,7 +1,8 @@
-"""D1-03 · skill x object · L1 · 床头药盒
+"""D1-03 · skill x object · L1
 
-依赖的 RoboTwin 基础任务: 26 place_can_basket, 30 place_empty_cup
-由 suite/table.py 生成，不要直接改这个文件。组合泛化测评专用，不用于训练。
+RoboTwin source-task links: 26 place_can_basket, 30 place_empty_cup
+Generated candidate from suite/table.py for evaluation, not training.
+The checked-in release may include reviewed refinements; do not overwrite it blindly.
 """
 from ._compo_scene import CompoScene
 

@@ -1,9 +1,8 @@
-"""D3-02 · attribute binding · L2 · 积木码垛
+"""D3-02 · attribute binding · L2
 
-三路颜色干扰，随机基线 33%
-
-依赖的 RoboTwin 基础任务: 45 stack_blocks_three, 9 handover_block
-由 suite/table.py 生成，不要直接改这个文件。组合泛化测评专用，不用于训练。
+RoboTwin source-task links: 45 stack_blocks_three, 9 handover_block
+Generated candidate from suite/table.py for evaluation, not training.
+The checked-in release may include reviewed refinements; do not overwrite it blindly.
 """
 from ._compo_scene import CompoScene
 

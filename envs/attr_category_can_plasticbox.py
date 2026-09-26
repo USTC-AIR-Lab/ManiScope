@@ -1,9 +1,8 @@
-"""D3-05 · attribute binding · L2 · 仓储上架
+"""D3-05 · attribute binding · L2
 
-类别属性 + 容器动作
-
-依赖的 RoboTwin 基础任务: 27 place_cans_plasticbox, 19 pick_diverse_bottles
-由 suite/table.py 生成，不要直接改这个文件。组合泛化测评专用，不用于训练。
+RoboTwin source-task links: 27 place_cans_plasticbox, 19 pick_diverse_bottles
+Generated candidate from suite/table.py for evaluation, not training.
+The checked-in release may include reviewed refinements; do not overwrite it blindly.
 """
 from ._compo_scene import CompoScene
 

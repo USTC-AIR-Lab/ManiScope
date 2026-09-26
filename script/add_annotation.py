@@ -5,9 +5,7 @@ import re
 
 
 def remove_comments_and_docstrings(source):
-    """
-    删除 Python 源码中的注释和文档字符串。
-    """
+    """Remove comments and docstrings from Python source."""
     src = io.StringIO(source)
     out = []
     prev_tok_type = tokenize.INDENT
@@ -30,7 +28,7 @@ def remove_comments_and_docstrings(source):
             pass
         elif token_type == tokenize.STRING:
             if prev_tok_type not in (tokenize.INDENT, tokenize.NEWLINE):
-                # 判断是否为 docstring
+                # Identify a docstring.
                 if re.match(r'^\s*"""(?:[^"]|"{1,2})*"""$', token_string) or re.match(
                         r"^\s*'''(?:[^']|'{1,2})*'''$", token_string):
                     continue
@@ -49,16 +47,14 @@ def remove_comments_and_docstrings(source):
 
 
 def get_method_source(filename, method_name):
-    """
-    提取指定类中的方法源码。
-    """
+    """Extract method source from the specified class."""
     with open(filename, "r", encoding="utf-8") as f:
         source = f.read()
     tree = ast.parse(source)
 
     for node in ast.walk(tree):
         if isinstance(node, ast.ClassDef):
-            # 遍历类中的所有方法
+            # Traverse all class methods.
             for item in node.body:
                 if isinstance(item, ast.FunctionDef) and item.name == method_name:
                     lines = source.splitlines(keepends=True)
@@ -103,9 +99,7 @@ def compare_functions(code1, code2):
 
 
 def replace_method_in_file_with_comments(filename, method_name, new_method_source):
-    """
-    将指定类中的方法替换为新内容（保留注释等原始结构）。
-    """
+    """Replace a class method while preserving surrounding comments and source structure."""
     with open(filename, "r", encoding="utf-8") as f:
         lines = f.readlines()
 
@@ -118,17 +112,17 @@ def replace_method_in_file_with_comments(filename, method_name, new_method_sourc
         if isinstance(node, ast.ClassDef):
             for item in node.body:
                 if isinstance(item, ast.FunctionDef) and item.name == method_name:
-                    start_line = item.lineno - 1  # lineno 是 1-based
+                    start_line = item.lineno - 1  # Line numbers are one-based.
                     end_line = _get_function_end_line(item, lines)
 
-                    # 新方法内容按行分割，并保留缩进结构
-                    # 注意：new_method_source 应当是 new.txt 的原始字符串
+                    # Preserve indentation when replacing the method source range, then write the file.
+
                     new_lines = new_method_source.splitlines(keepends=True)
 
-                    # 替换对应行区间
+
                     lines[start_line:end_line] = new_lines
 
-                    # 写回文件
+
                     with open(filename, "w", encoding="utf-8") as f:
                         f.writelines(lines)
                     return
@@ -136,61 +130,7 @@ def replace_method_in_file_with_comments(filename, method_name, new_method_sourc
     raise ValueError(f"Method '{method_name}' not found.")
 
 
-system_prompt = """
-角色：你是一个专业的程序员，具有深厚的 Python 编程能力，能够快速理解和修改代码。你会根据我的要求来为代码添加相应的解释。
-任务：我会给你一段 Python 代码，你需要根据我的要求添加注释。注意，你不能对代码内容进行任何修改，只能添加注释。
-- 在 play_once 中：
-    - 你需要理解下面这些可用的函数调用：
-        - 我定义了 self.move() 函数，可以传递至多两个参数，分别是 actions_by_arm1, actions_by_arm2。
-        - 以下函数会返回 actions（即一个动作序列）：
-            - self.grasp_actor(actor, arm_tag:ArmTag, **args)
-            - self.place_actor(actor, arm_tag:ArmTag, target_pose, **args)
-            - self.move_to_pose(arm_tag:ArmTag, target_pose)
-            - self.move_by_displacement(arm_tag:ArmTag, x, y, z)
-            - self.close_gripper(arm_tag:ArmTag, **args)
-            - self.open_gripper(arm_tag:ArmTag, **args)
-            - self.back_to_origin(arm_tag:ArmTag)
-    - 你需要对每一个 self.move 进行注释，说明这个动作/组合动作是做什么的，这里的注释要**使用英文**。
-
-举例：
-- 没加注释前：
-def play_once(self):
-    arm_tag = ArmTag('right' if self.object.get_pose().p[0] > 0 else 'left')
-
-    self.move(self.grasp_actor(self.object, arm_tag=arm_tag, pre_grasp_dis=0.1))
-    self.move(self.move_by_displacement(arm_tag=arm_tag, z=0.06))
-
-    displaystand_pose = self.displaystand.get_functional_point(0)
-
-    self.move(self.place_actor(self.object, arm_tag=arm_tag, target_pose=displaystand_pose, constrain='free', pre_dis=0.07))
-
-    self.info['info'] = {'{A}': f"{self.selected_modelname}/base{self.selected_model_id}", '{B}': f"074_displaystand/base{self.displaystand_id}", '{a}': f'{arm_tag}'}
-    return self.info
-
-- 加注释后：
-```python
-def play_once(self):
-    arm_tag = ArmTag('right' if self.object.get_pose().p[0] > 0 else 'left')
-
-    # Grasp the object
-    self.move(self.grasp_actor(self.object, arm_tag=arm_tag, pre_grasp_dis=0.1))
-    # Move up
-    self.move(self.move_by_displacement(arm_tag=arm_tag, z=0.06))
-
-    # Get display stand's functional point as target pose
-    displaystand_pose = self.displaystand.get_functional_point(0)
-
-    # Place the object on the display stand
-    self.move(self.place_actor(self.object, arm_tag=arm_tag, target_pose=displaystand_pose, constrain='free', pre_dis=0.07))
-
-    self.info['info'] = {'{A}': f"{self.selected_modelname}/base{self.selected_model_id}", '{B}': f"074_displaystand/base{self.displaystand_id}", '{a}': f'{arm_tag}'}
-    return self.info
-```
-
-约束：你不能对代码内容进行任何修改，只需要添加注释即可。
-
-现在，开始你的工作！你只需要输出代码块即可。
-"""
+system_prompt = """Annotate the supplied Python code without changing executable code. Explain each self.move call in play_once with a concise English comment. self.move accepts up to two per-arm action sequences returned by grasp_actor, place_actor, move_to_pose, move_by_displacement, close_gripper, open_gripper, and back_to_origin. Preserve arguments, ordering, and all existing behavior. Return only the annotated code block."""
 
 import os
 import time
@@ -199,7 +139,7 @@ from openai import OpenAI
 
 
 def parse(source, max_try=5, verbose=True):
-    """AI 解析代码"""
+    """Request code annotation."""
     os.environ["all_proxy"] = ""
     os.environ["http_proxy"] = ""
     os.environ["https_proxy"] = ""
@@ -267,13 +207,13 @@ def main(file_path, max_try=5, verbose=True):
     try_count = 0
     while try_count < max_try:
         try_count += 1
-        # Step 1: 提取类中的方法
+        # Step 1: extract class methods.
         method_source = get_method_source(file_path, "play_once")
 
-        # Step 2: 调用 AI 解析代码
+        # Step 2: request code analysis.
         processed_source = parse(method_source, max_try=5, verbose=verbose)
 
-        # Step 3: 比较两个方法
+        # Step 3: compare methods.
         if compare_functions(method_source, processed_source):
             replace_method_in_file_with_comments(file_path, "play_once", processed_source)
             break

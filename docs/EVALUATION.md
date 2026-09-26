@@ -25,7 +25,7 @@ settings in your experiment report; these are external to the frozen scene contr
 
 Video eligibility is the first `ROBOTWIN_VIDEO_FIRST_N` seeds (default 10), independent of success.
 Optional success/failure caps can further reduce saved video count. Images/videos and raw outputs
-are gitignored. Historical reports in `docs/archive` are not rerun results for this snapshot.
+are gitignored. See `RESULTS_PROVENANCE.md` for the scope of historical and new results.
 
 For generated scenes, `CompoScene.check_success` combines target selection, reference stability,
 and the declared goal. Handwritten scenes have individual criteria. Model action horizons,

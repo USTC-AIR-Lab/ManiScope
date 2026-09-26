@@ -6,6 +6,5 @@
   "unseen": [
     "Beat the {A} with the hammer.",
     "Please beat the {A} with the hammer."
-  ],
-  "_note": "D3-13 attribute binding L2;判据=beat;由 suite/table.py 生成"
+  ]
 }

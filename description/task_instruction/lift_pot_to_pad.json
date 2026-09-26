@@ -6,6 +6,5 @@
   "unseen": [
     "Lift the {A} with both arms and put it on the pad.",
     "Please lift the {A} with both arms and put it on the pad."
-  ],
-  "_note": "D5-11 skill x skill (temporal) L3;判据=dual_carry_to;由 suite/table.py 生成"
+  ]
 }

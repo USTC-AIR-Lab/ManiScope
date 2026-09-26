@@ -6,32 +6,9 @@ import json
 
 
 class attr_bind_soap_box(Base_Task):
-    """组合泛化测试场景（属性 x 属性）。不用于训练。
+    """Joint color/category selection with a target, a same-color different-category distractor, and a same-category different-color distractor. Require the requested target under the task-specific lifting and selection guards. These are observable predicates, not latent-intention labels."""
 
-    桌面三个物体，构成经典的属性绑定测试：
-        target        (颜色C1, 类别K1)  <- 目标
-        same_color    (颜色C1, 类别K2)  <- 只看颜色会误选它
-        same_category (颜色C2, 类别K1)  <- 只看类别会误选它
-    指令形如「拿起黄色的肥皂」。只按颜色选 = 50%，只按类别选 = 50%，
-    **必须同时绑定颜色和类别**才能稳定选对。没有干扰物的话，「拿黄肥皂」和「拿肥皂」
-    没有区别，成功率再高也说明不了 steerability。
-
-    物体选择的来龙去脉（前一版 attr_bind_cup_mug 的教训）：
-      * 前一版用 021_cup / 039_mug，专家产出率一直是 1/8。逐步探针定位到**第 1 步抓取**
-        就挂，而不是放置。改间距、改成三角形分布、把任务从「放到垫子上」简化成「拿起」，
-        都没用 —— 同样是「拿起」，魔方能 8/8，说明是**杯子/马克杯本身难抓**。
-      * 这一版只用**训练任务里在用、抓取确定没问题**的物体（107_soap / 112_tea-box /
-        113_coffee-box），并且只取颜色描述**唯一**的变体（很多变体的描述里混着多个颜色词，
-        那些一律不用）。
-      * 代价：没有任何两个类别共享 2 个以上干净颜色，所以做不出 2x2 全排列，
-        只能枚举下面这几组合法三元组。这不影响测试性质 —— 三个物体已经足够
-        让「只看颜色」和「只看类别」各自都只有 50%。
-
-    诊断：成功率分不清「属性绑错」和「抓不准」，所以每条 episode 把**实际被拿起的是哪一个**
-    写进 ATTR_BIND_LOG 指定的文件。
-    """
-
-    # (角色 -> (modelname, model_id, 颜色词, 类别词))
+    # Role -> (model name, model ID, color, category).
     TRIPLES = [
         {"target": ("107_soap", 0, "yellow", "soap"),
          "same_color": ("112_tea-box", 3, "yellow", "tea box"),
@@ -57,7 +34,7 @@ class attr_bind_soap_box(Base_Task):
         self.target_color = trip["target"][2]
         self.target_category = trip["target"][3]
 
-        # 三角形分布：中间那个往后挪，三者两两拉开，给抓取规划留出接近空间
+        # Use a triangular layout with the middle object farther back to provide grasp approach clearance.
         slots = [(-0.23, -0.18, -0.18, -0.12), (-0.03, 0.03, -0.06, 0.00), (0.18, 0.23, -0.18, -0.12)]
         order = np.random.permutation(3)
 

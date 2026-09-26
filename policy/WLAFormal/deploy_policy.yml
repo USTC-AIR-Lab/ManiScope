@@ -1,4 +1,3 @@
-# 公开 WLA (SJTU-DENG-Lab/wla_robotwin_all_image_action) 单内核 eval 基础字段。
 policy_name: WLAFormal
 task_name: null
 task_config: demo_clean
@@ -6,10 +5,9 @@ ckpt_setting: wla_formal
 seed: 0
 instruction_type: unseen
 
-# 推理服务（policy/WLAFormal/serve.py，见 suite/launch/start_wla_formal.sh）
 base_url: http://localhost:7980
 cameras: "head_camera_rgb,left_camera_rgb,right_camera_rgb"
-action_horizon: 32          # config.json chunk_size=32，官方 action_chunk_size=None 即整 chunk 执行
+action_horizon: 32
 history_obs_step: 8         # config.json history_obs_step=8
-control_mode: eef           # 公开官方 run_robotwin_eval.sh 对该 checkpoint 的设置（unnorm_key=robotwin_all_eef，16 维）
+control_mode: eef
 action_mode: absolute

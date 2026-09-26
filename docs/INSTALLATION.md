@@ -25,7 +25,7 @@ The inherited `script/requirements.txt` is legacy reference material; use `requi
 
 Set `ROBOTWIN_PYTHON` to the environment's Python in `configs/local.env`.
 Do not run installers against another user's shared environment. The old installer that edited
-SAPIEN/mplib in place is archived as text; `script/_install.sh` no longer makes those edits.
+SAPIEN/mplib in place is not shipped; `script/_install.sh` no longer makes those edits.
 If a backend requires a patch, apply and record it in your own environment and rerun the smoke test.
 
 ## Assets

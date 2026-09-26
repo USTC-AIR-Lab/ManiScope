@@ -1,6 +1,5 @@
 {
   "full_description": "pick up the bottle of the stated color, telling it apart from the other-colored one",
-  "_note": "attr_bind_bottle（属性绑定·颜色）。桌上两个同类别不同颜色的瓶子（棕色可乐 / 绿色雪碧），唯一消歧线索是颜色，随机选=50%。用瓶子是因为 adjust_bottle 实测 1.00，这两个变体的可抓性已被数据确认。{A} 传字面串如 'green bottle'，非路径值不加冠词，模板自带 'the'。",
   "schema": "{A} notifies the color and the object, e.g. 'green bottle'; {a} notifies the arm",
   "preference": "num of words should not exceed 12",
   "seen": [

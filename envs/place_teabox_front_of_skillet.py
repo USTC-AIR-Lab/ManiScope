@@ -1,7 +1,8 @@
-"""D2-11 · skill x spatial · L2 · 厨房备餐
+"""D2-11 · skill x spatial · L2
 
-依赖的 RoboTwin 基础任务: 24 place_bread_skillet, 21 place_a2b_left
-由 suite/table.py 生成，不要直接改这个文件。组合泛化测评专用，不用于训练。
+RoboTwin source-task links: 24 place_bread_skillet, 21 place_a2b_left
+Generated candidate from suite/table.py for evaluation, not training.
+The checked-in release may include reviewed refinements; do not overwrite it blindly.
 """
 from ._compo_scene import CompoScene
 

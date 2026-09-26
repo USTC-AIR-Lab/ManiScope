@@ -1,6 +1,5 @@
 #!/bin/bash
 source "$(dirname "${BASH_SOURCE[0]}")/config.sh"
-# 按维度分批过专家烟测：场景轮流分到 8 张卡上并行。产出率 >= 2/8 才进正式清单。
 set -uo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PY="${ROBOTWIN_PYTHON:-python3}"

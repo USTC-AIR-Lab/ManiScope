@@ -1,9 +1,8 @@
-"""D3-08 · attribute binding · L3 · 家务分拣
+"""D3-08 · attribute binding · L3
 
-尺寸序位（三选一的中间档），比二选一的大/小难一级
-
-依赖的 RoboTwin 基础任务: 4 blocks_ranking_size, 28 place_container_plate
-由 suite/table.py 生成，不要直接改这个文件。组合泛化测评专用，不用于训练。
+RoboTwin source-task links: 4 blocks_ranking_size, 28 place_container_plate
+Generated candidate from suite/table.py for evaluation, not training.
+The checked-in release may include reviewed refinements; do not overwrite it blindly.
 """
 from ._compo_scene import CompoScene
 

@@ -65,6 +65,5 @@
     "Use {a} to move {A} to {B} mat",
     "Move {A} to the {B} mat",
     "Place {A} on the {B} mat"
-  ],
-  "_note": "move_cup_pad 复用 move_stapler_pad 的模板（占位符相同 {A}{B}{a}）；{A} 会被替换成杯子的描述。"
+  ]
 }

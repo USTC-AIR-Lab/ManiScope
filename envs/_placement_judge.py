@@ -114,9 +114,9 @@ def grasped_clearance(env, actor, initial_bottom, clearance):
                 (b.global_id==target_id and a.name in names)):
                 held=True
                 break
-        # 诊断要分开记：判据要的是「**被夹着的同时**离地多少」。
-        # 只记 gap 不区分是否夹着，物体被撞飞时也会记到很大的值，
-        # 反而看不出失败原因（grab_dumbbell 上就是这样：失败的位移比成功的还大）。
+        # Track clearance while gripped separately from free object rise; collisions can launch objects without a grasp.
+
+
         if gap > getattr(env, "_max_clearance", -1e9):
             env._max_clearance = float(gap)
             env._clearance_thr = float(clearance)

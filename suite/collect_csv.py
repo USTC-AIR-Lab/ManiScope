@@ -1,29 +1,5 @@
 # -*- coding: utf-8 -*-
-"""把一次评测的所有产物汇总成统一 CSV，供论文画图用。
-
-用法:
-    python3 suite/collect_csv.py <run_dir_name> [policy]
-    例: python3 suite/collect_csv.py formal_dm05_20260911 dm05
-
-产出两个文件（写在 run 目录下）:
-    episodes.csv  逐条 episode：policy, scene, dim, tier, episode, seed, instruction,
-                  success, steps, step_lim, target_disp, distractor_disp,
-                  clearance, clearance_held, clearance_thr, contact_dist, contact_thr
-    scenes.csv    逐场景汇总：policy, scene, dim, tier, n, success_rate,
-                  wilson_lo, wilson_hi, mean_steps, mean_steps_success, mean_steps_fail,
-                  fail_touched_distractor, fail_not_lifted, fail_no_contact, fail_other
-
-数据来源（全部是已有产物，不需要重跑）:
-    _result.txt        场景成功率
-    _instructions.txt  每条的 seed 与实际指令
-    _lift.txt          每条的成败、目标/干扰物位移、离地净空
-    _contact.txt       接触类每条的最近接触距离
-    suite/logs/*/<policy>_<scene>.log  每条的步数（日志里每步都打了 step: N / LIM）
-
-注意：步数是从日志反解出来的。日志按 \\r 刷新同一行，每条 episode 以 Success!/Fail! 收尾，
-按这个边界切分、取每段里最大的 step 值即可。日志可能包含同一场景的多轮运行，
-所以只取**最后 n 条**与本次 episode 数对齐。
-"""
+"""Collect episode and scene CSVs from a run. Episode records include native success and available displacement, clearance and contact diagnostics; scene summaries report counts, Wilson intervals and observed failure categories. Missing telemetry remains missing. Do not infer latent causes from final scores."""
 import os, re, sys, csv, glob, math, json
 
 RUN = sys.argv[1] if len(sys.argv) > 1 else "formal_dm05_20260911"
@@ -50,7 +26,7 @@ def scene_meta():
 
 
 def parse_kv_lines(path, keys):
-    """解析 _lift.txt / _contact.txt 这类 'episodeN\\t字段=值\\t...' 的行。"""
+    """Parse episodeN tab-separated key=value telemetry such as _lift.txt and _contact.txt."""
     out = {}
     if not os.path.exists(path):
         return out
@@ -74,7 +50,7 @@ def parse_kv_lines(path, keys):
 
 
 def steps_from_log(scene, n_expect):
-    """从场景日志反解每条 episode 的步数。返回 [(steps, step_lim, outcome), ...]。"""
+    """Extract (steps, step_limit, outcome) tuples from scene logs."""
     cands = glob.glob(os.path.join("suite", "logs", "*", "%s_%s.log" % (POLICY, scene)))
     if not cands:
         return []
@@ -93,7 +69,7 @@ def steps_from_log(scene, n_expect):
             continue
         o = OUTCOME.search(line)
         if o:
-            eps.append((cur_max, cur_lim, "成功" if o.group(1) == "Success!" else "失败"))
+            eps.append((cur_max, cur_lim, "success" if o.group(1) == "Success!" else "failure"))
             cur_max = 0
     return eps[-n_expect:] if n_expect and len(eps) >= n_expect else eps
 
@@ -117,7 +93,7 @@ for scene in sorted(os.listdir(RUNDIR)) if os.path.isdir(RUNDIR) else []:
         continue
     res = glob.glob(os.path.join(sdir, "*/*/*/*/_result.txt"))
     if not res:
-        continue                      # 还没跑完的场景跳过
+        continue
     base = os.path.dirname(res[0])
     rate = None
     for tok in re.findall(r"^[01]?\.?\d+$", open(res[0]).read(), re.M):
@@ -136,7 +112,7 @@ for scene in sorted(os.listdir(RUNDIR)) if os.path.isdir(RUNDIR) else []:
 
     lift = parse_kv_lines(os.path.join(base, "_lift.txt"), None)
     cont = parse_kv_lines(os.path.join(base, "_contact.txt"), None)
-    lat = parse_kv_lines(os.path.join(base, "_latency.txt"), None)   # formal-eval-v2 起才有
+    lat = parse_kv_lines(os.path.join(base, "_latency.txt"), None)   # Use recorded latency-step counts when available rather than log inference.
     n_ep = max([len(instr), len(lift)] or [0])
     steps = steps_from_log(scene, n_ep)
 
@@ -150,29 +126,29 @@ for scene in sorted(os.listdir(RUNDIR)) if os.path.isdir(RUNDIR) else []:
         L = lift.get(ep, {})
         C = cont.get(ep, {})
         T = lat.get(ep, {})
-        # 有 _latency.txt 时步数直接取记录值，比解析日志可靠
+
         if T.get("steps"):
             st = int(T["steps"])
-        ok = (L.get("_outcome") == "成功")
+        ok = (L.get("_outcome") == "success")
         st, lim, log_out = (steps[ep] if ep < len(steps) else (None, None, None))
         if ok:
             nsucc += 1
             if st: s_steps.append(st)
         else:
             if st: f_steps.append(st)
-            # 失败归类（只用已记录的量，不臆测）
+            # Report observed failure categories, summaries, matched episodes and scene-level details without inferring unrecorded causes.
             try:
-                dd = float(L.get("最大干扰物位移", "nan"))
-                ch = L.get("被夹着时最大净空", "")
-                thr = float(L.get("阈值", "nan"))
-                cd = C.get("最近距离", "")
+                dd = float(L.get("max_distractor_displacement", "nan"))
+                ch = L.get("max_gripped_clearance", "")
+                thr = float(L.get("threshold", "nan"))
+                cd = C.get("min_distance", "")
                 if dd == dd and dd > 0.05:
                     f_touch += 1
-                elif cd and cd != "从未接触" and float(cd) > float(C.get("阈值", 0)):
+                elif cd and cd != "never_contacted" and float(cd) > float(C.get("threshold", 0)):
                     f_nocontact += 1
-                elif cd == "从未接触":
+                elif cd == "never_contacted":
                     f_nocontact += 1
-                elif ch and ch != "从未夹住" and thr == thr and float(ch) < thr:
+                elif ch and ch != "never_gripped" and thr == thr and float(ch) < thr:
                     f_nolift += 1
                 else:
                     f_other += 1
@@ -182,10 +158,10 @@ for scene in sorted(os.listdir(RUNDIR)) if os.path.isdir(RUNDIR) else []:
         ep_rows.append(dict(
             policy=POLICY, scene=scene, dim=dim, tier=tier, episode=ep, seed=seed,
             instruction=ins, success=int(ok), steps=st or "", step_lim=lim or "",
-            target_disp=L.get("目标位移", ""), distractor_disp=L.get("最大干扰物位移", ""),
-            clearance=L.get("最大净空", ""), clearance_held=L.get("被夹着时最大净空", ""),
-            clearance_thr=L.get("阈值", ""),
-            contact_dist=C.get("最近距离", ""), contact_thr=C.get("阈值", ""),
+            target_disp=L.get("target_displacement", ""), distractor_disp=L.get("max_distractor_displacement", ""),
+            clearance=L.get("max_clearance", ""), clearance_held=L.get("max_gripped_clearance", ""),
+            clearance_thr=L.get("threshold", ""),
+            contact_dist=C.get("min_distance", ""), contact_thr=C.get("threshold", ""),
             model_calls=T.get("calls", ""), eval_wall_mean=T.get("eval_wall_mean", ""),
             eval_wall_p95=T.get("eval_wall_p95", ""), model_time_mean=T.get("model_mean", ""),
             episode_wall=T.get("episode_wall", "")))
@@ -209,4 +185,4 @@ for name, rows in (("episodes.csv", ep_rows), ("scenes.csv", sc_rows)):
     with open(p, "w", newline="", encoding="utf-8-sig") as f:
         w = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
         w.writeheader(); w.writerows(rows)
-    print("%s: %d 行 -> %s" % (name, len(rows), p))
+    print("%s: %d rows -> %s" % (name, len(rows), p))

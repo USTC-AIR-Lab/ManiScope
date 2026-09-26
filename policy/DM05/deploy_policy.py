@@ -1,19 +1,4 @@
-"""DM0.5 (Dexmal DM05-robotwin2) 的 RoboTwin eval 插件。
-
-单内核契约：script/eval_policy.py 通过 policy/<name>/ 找 get_model()/eval()/reset_model()。
-这里是一个瘦 HTTP 客户端：把观测 POST 给 opendm 起的推理服务（/v1/infer），
-收回 (chunk, 14) 的**绝对** qpos，逐步 take_action。DM0.5 的 chunk 是 50。
-
-和 WLA 插件（policy/WLA/deploy_policy.py）保持**逐行对齐的行为**，这样两个策略走
-同一个内核时评测协议完全一致：
-  * eval() 里按 step_lim / eval_success 中断（不是把整块 50 步无脑执行完）；
-  * 组合场景在阶段交接处调用 maybe_bridge_to_stage2()（若任务提供）；
-  * NaN/inf 动作直接报错（喂进 sapien 会段错误，日志里什么都看不到）；
-  * record_stage() 把每条 episode 走到的最高 stage 落盘，供 collect 对比。
-
-协议字段来自 deploy_policy.yml / run_suite.sh 的 --overrides：
-    base_url / cameras / action_horizon / action_mode / api_style / sampling
-"""
+"""DM0.5 RoboTwin HTTP adapter. Send current observations to the configured legacy or v1 inference endpoint and execute returned actions. Support absolute, relative or delta modes with finite-action validation; retain reset and optional stage telemetry."""
 
 import base64
 import json
@@ -26,7 +11,7 @@ import requests
 
 logger = logging.getLogger(__name__)
 
-# eval_policy.py 的 encode_obs 用 RoboTwin 相机名，DM0.5 服务按 use_cameras 顺序取图
+# Use RoboTwin camera names; the DM0.5 service applies use_cameras ordering.
 _CAM_SOURCE = {
     "head_camera_rgb": "head_camera",
     "front_camera_rgb": "front_camera",
@@ -39,25 +24,25 @@ class DM05Client:
     def __init__(self, base_url, use_cameras, action_horizon=50,
                  action_mode="absolute", api_style="v1", sampling=None):
         self.base_url = base_url.rstrip("/")
-        assert api_style in ("legacy", "v1"), "api_style 只支持 legacy / v1"
+        assert api_style in ("legacy", "v1"), "api_style must be legacy or v1"
         self.api_style = api_style
         self.server_url = (f"{self.base_url}/process_frame" if api_style == "legacy"
                            else f"{self.base_url}/v1/infer")
         self.use_cameras = list(use_cameras)
         self.action_horizon = int(action_horizon)
         assert action_mode in ("absolute", "relative", "delta"), \
-            "action_mode 只支持 absolute / relative / delta"
+            "action_mode must be absolute, relative or delta"
         self.action_mode = action_mode
         self.sampling = dict(sampling or {})
-        # 组合泛化评测用：光看 success 分不出「第一步就没做到」和「做到一半」。
-        # 任务提供 stage 时才有内容（见 envs/adjust_bottle_dustbin.py）。
+        # Record task-provided stage state for diagnostics when available.
+
         self.stage_log_path = os.environ.get("STAGE_LOG") or None
         self.stages = {}
         print(f"[DM05] server={self.server_url} cameras={self.use_cameras} "
               f"horizon={self.action_horizon} mode={self.action_mode}"
               + (f", stage log -> {self.stage_log_path}" if self.stage_log_path else ""))
 
-    # ---- 与推理服务通信 --------------------------------------------------- #
+    # Inference service communication.
     def _infer_v1(self, instruction, encoded_images, state):
         obs = {
             "prompt": instruction,
@@ -72,7 +57,7 @@ class DM05Client:
         ret.raise_for_status()
         raw = ret.json().get("actions")
         if raw is None:
-            raise RuntimeError("v1 推理服务返回缺少 actions")
+            raise RuntimeError("v1 service response missing actions")
         return raw
 
     def _infer_legacy(self, instruction, encoded_images, state):
@@ -84,7 +69,7 @@ class DM05Client:
         ret.raise_for_status()
         raw = ret.json().get("response")
         if raw is None:
-            raise RuntimeError("legacy 推理服务返回缺少 response")
+            raise RuntimeError("Legacy service response missing response")
         return raw
 
     def get_action(self, instruction, rgbs, state=None):
@@ -96,10 +81,10 @@ class DM05Client:
         if self.action_horizon > 0 and len(chunk) > self.action_horizon:
             chunk = chunk[: self.action_horizon]
         if not np.isfinite(chunk).all():
-            raise RuntimeError("推理服务返回 NaN/inf 动作 —— 多半是 checkpoint 坏了，换一个")
+            raise RuntimeError("Service returned NaN/inf actions; verify the checkpoint and inference configuration")
         return chunk
 
-    # ---- 相对/增量 -> 绝对（DM0.5 用 absolute，一般不走这两条） -------------- #
+    # Convert relative/delta actions to absolute actions when configured.
     @staticmethod
     def _to_absolute(state, chunk, cumulative):
         la, ra = state[:6], state[7:13]
@@ -114,7 +99,7 @@ class DM05Client:
             return chunk
         return self._to_absolute(state, chunk, cumulative=(self.action_mode == "delta"))
 
-    # ---- stage 记录（与 WLA 插件同格式） ---------------------------------- #
+    # Record stage state using the shared adapter format.
     def record_stage(self, TASK_ENV):
         if self.stage_log_path is None:
             return
@@ -137,11 +122,11 @@ class DM05Client:
         try:
             requests.post(f"{self.base_url}/v1/reset", timeout=5)
         except Exception as exc:
-            logger.warning("通知推理服务 /v1/reset 失败: %s", exc)
+            logger.warning("Failed to notify inference service /v1/reset: %s", exc)
 
 
 # --------------------------------------------------------------------------- #
-# RoboTwin 单内核接口
+# RoboTwin single-evaluator interface.
 # --------------------------------------------------------------------------- #
 def encode_obs(observation, use_cameras):
     imgs = []
@@ -167,9 +152,9 @@ def get_model(usr_args):
 
 
 def eval(TASK_ENV, model, observation):
-    if observation is None:                      # skip_get_obs_within_replan 时可能为 None
+    if observation is None:                      # Observation can be None when skip_get_obs_within_replan is enabled.
         observation = TASK_ENV.get_obs()
-    # 组合泛化场景可以在阶段交接处插一段脚本动作（同 WLA 插件）。别的任务没有此方法。
+    # Tasks may expose an optional scripted stage bridge; other tasks do not implement it.
     bridge = getattr(TASK_ENV, "maybe_bridge_to_stage2", None)
     if bridge is not None:
         bridge()

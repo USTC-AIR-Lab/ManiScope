@@ -1,7 +1,5 @@
 #!/bin/bash
 source "$(dirname "${BASH_SOURCE[0]}")/../config.sh"
-# 启动 OpenWAM-α 推理：官方 websocket 策略服务（openwam-serve）+ 本仓库的 HTTP 桥接（policy/OpenWAM/bridge.py）。
-# run_suite 只透传 PORT：桥接监听 PORT，websocket 服务用 PORT+100。
 set -euo pipefail
 export OPENWAM_DIR="${OPENWAM_DIR:?Set OPENWAM_DIR in configs/local.env}"
 export OPENWAM_CKPT="${OPENWAM_CKPT:?Set OPENWAM_CKPT in configs/local.env}"
@@ -11,7 +9,7 @@ export GPU="${GPU:-0}"
 export ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 export PY="$OPENWAM_DIR/.venv/bin/python"
 for p in "$PY" "$OPENWAM_CKPT/config.yaml" "$ROOT/policy/OpenWAM/bridge.py"; do
-  [[ -e "$p" ]] || { echo "[openwam] 缺少 $p" >&2; exit 1; }
+  [[ -e "$p" ]] || { echo "[openwam] missing $p" >&2; exit 1; }
 done
 cd "$OPENWAM_DIR"
 env CUDA_VISIBLE_DEVICES="$GPU" HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 PYTHONPATH="$OPENWAM_DIR" \

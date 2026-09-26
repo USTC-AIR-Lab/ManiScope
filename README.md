@@ -54,7 +54,7 @@ runtime fails the rendering smoke with a CUDA illegal-instruction error. See
 - `suite/policies.yaml`, `policy/`: public model registrations and adapters.
 - `suite/run_suite.sh`: sequential evaluation; parallel/retry wrappers are also included.
 - `tools/`, `tests/`: preflight, provenance, release validation and regression tests.
-- `docs/archive/`: historical reports; not evidence of this normalized snapshot's performance.
+- `docs/RESULTS_PROVENANCE.md`: reporting scope and provenance requirements.
 
 ## Documentation
 

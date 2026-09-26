@@ -7,6 +7,5 @@
   "unseen": [
     "Put the {A} into the plastic box.",
     "Please put the {A} into the plastic box."
-  ],
-  "_note": "D3-05 attribute binding L2;判据=in;由 suite/table.py 生成"
+  ]
 }

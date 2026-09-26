@@ -7,6 +7,5 @@
   "unseen": [
     "Put the {A} to the right of the laptop.",
     "Please put the {A} to the right of the laptop."
-  ],
-  "_note": "D2-13 skill x spatial L2;判据=rel;由 suite/table.py 生成"
+  ]
 }

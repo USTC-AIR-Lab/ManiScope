@@ -1,6 +1,5 @@
 {
   "full_description": "first click the bell, then press the stapler",
-  "_note": "click_bell_press_stapler（技能x技能·跨物体时序）。click_bell 与 press_stapler 各自在训练的 50 个任务里，但从未在同一场景里串联过。两个都是按压型原语（物体静止、不需抓起），是这套环境里最稳的动作 —— 前两版用微波炉和抽屉都栽在抓取/容器上。",
   "schema": "{A} notifies the bell, {B} notifies the stapler, {a} notifies the arm clicking the bell, {b} notifies the arm pressing the stapler",
   "preference": "num of words should not exceed 18",
   "seen": [

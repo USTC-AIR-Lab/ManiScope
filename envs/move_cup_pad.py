@@ -1,8 +1,4 @@
-"""组合泛化测试场景（技能 x 物体）。
-
-从 move_stapler_pad 克隆，**只把订书机换成杯子**，其余一字不动。不用于训练。
-内部变量名沿用 stapler_* 以便和原任务逐行对照。
-"""
+"""Object-composition evaluation replacing the stapler with a cup. Internal stapler_* names are retained for source-code comparison; current placement tolerances are defined below."""
 import os
 import json
 from ._base_task import Base_Task
@@ -24,10 +20,9 @@ class move_cup_pad(Base_Task):
             ylim=[-0.2, 0.0],
             qpos=[0.5, 0.5, 0.5, 0.5],
             rotate_rand=True,
-            # 绕 Y 轴最多 0.6 rad，不是 3.14。3.14 是从 move_stapler_pad 原样继承的：
-            # 订书机平躺着绕 Y 转无所谓，杯子绕 Y 转 π 会被**倒扣**过来（总览图上肉眼可见）。
-            # 参照 RoboTwin 自己的 hanging_mug，它给马克杯的 Y 限制是 1.57；
-            # 杯子是回转体，真正该随机的是绕竖轴的偏航，Y 只留一点点扰动。
+            # Limit local Y rotation to 0.6 rad to avoid inverting the cup. Randomize mainly about the upright yaw axis.
+
+
             rotate_lim=[0, 0.6, 0],
         )
         while abs(rand_pos.p[0]) < 0.05:
@@ -36,16 +31,14 @@ class move_cup_pad(Base_Task):
                 ylim=[-0.2, 0.0],
                 qpos=[0.5, 0.5, 0.5, 0.5],
                 rotate_rand=True,
-                # 绕 Y 轴最多 0.6 rad，不是 3.14。3.14 是从 move_stapler_pad 原样继承的：
-            # 订书机平躺着绕 Y 转无所谓，杯子绕 Y 转 π 会被**倒扣**过来（总览图上肉眼可见）。
-            # 参照 RoboTwin 自己的 hanging_mug，它给马克杯的 Y 限制是 1.57；
-            # 杯子是回转体，真正该随机的是绕竖轴的偏航，Y 只留一点点扰动。
+                # Limit local Y rotation to 0.6 rad to avoid inverting the cup. Randomize mainly about the upright yaw axis.
+
+
             rotate_lim=[0, 0.6, 0],
             )
-        # 组合泛化 · 技能 x 物体：
-        # 「把 X 移到彩色垫子上」这个技能在训练里**只在订书机上出现过**（move_stapler_pad），
-        # 而杯子在训练里只见过 place 类技能。这里只把物体换成杯子，生成区、动作序列、
-        # 判据全部保持 move_stapler_pad 原样 —— 唯一变化的变量是物体身份。
+        # Object-composition evaluation replaces the stapler with a cup while reusing the placement routine and source layout.
+
+
         self.stapler_id = int(np.random.choice(list(range(13))))
         self.stapler = create_actor(
             scene=self,
@@ -134,41 +127,29 @@ class move_cup_pad(Base_Task):
         stapler_pose = self.stapler.get_pose().p
         stapler_qpose = np.abs(self.stapler.get_pose().q)
         target_pos = self.pad.get_pose().p
-        # 位置容差按**垫子实际尺寸**定，不再用一个和垫子无关的 ±2cm 方框。
-        # 垫子 half_size=[0.055, 0.03]（11cm x 6cm），原来的 ±2cm 比垫子本身还小 ——
-        # 杯子稳稳落在垫子上、只是离中心 3cm，也会被判失败。新判据是「杯子中心落在
-        # 垫子 footprint 内」，y 方向给 5mm 余量（垫子只有 6cm 宽，而杯子直径约 8cm，
-        # 摆正了本来就会在 y 上探出去一点）。
+        # Use the 11 x 6 cm pad footprint with a 5 mm y margin. Record the original 2 cm tolerance separately; do not treat the rotationally symmetric cup like an oriented stapler.
+
+
         #
-        # 为什么放宽是安全的（实测 8 个种子，suite/diag/cup_probe.py）：
-        #   放中的 seed1/seed3  r_xy=0.003, dz=0.000
-        #   没放中的 5 个        r_xy=0.106 ~ 0.355
-        # 专家的分布是**双峰**的，中间没有样本 —— 所以这次放宽对专家产出率毫无影响，
-        # 只影响策略打分（把杯子放上垫子但偏心几厘米的情况，以前记 0 分）。
-        # 这一条很重要：放宽不会被质疑成「改简单了以抬高数字」。
-        # 顺带确认：dz<0.01 没问题，专家放好时 dz 正好是 0.000，不是从订书机继承来的过紧项。
+
+
         PAD_HALF = [0.055, 0.03]
         eps = [float(os.environ.get("CUP_PAD_EPS_X", PAD_HALF[0])),
                float(os.environ.get("CUP_PAD_EPS_Y", PAD_HALF[1] + 0.005)),
                float(os.environ.get("CUP_PAD_EPS_Z", 0.02))]
-        STRICT_EPS = [0.02, 0.02, 0.01]   # move_stapler_pad 的原容差，只用于记录对照
-        # 去掉了 move_stapler_pad 原判据里的姿态项 (qpose.max()-qpose.min())<0.02。
-        # 那一项要求物体落在一个**特定朝向**上：订书机有明确朝向所以合理，但杯子是
-        # **回转体**，绕竖轴转任意角度在语义上都是同一个「放好了」，判据却只认一个。
-        # 首轮实测 0.00 而专家 5/9（专家能过是因为 place_actor 会强制对齐），
-        # 说明失败集中在朝向而非位置 —— 那是判据的问题，不是技能迁移的问题。
-        # 位置容差保持原样不变，所以和 move_stapler_pad 仍然可比。
+        STRICT_EPS = [0.02, 0.02, 0.01]   # Retain source position/orientation checks only as diagnostic comparisons; the current cup predicate uses its footprint-based placement requirement.
+
+
         d = stapler_pose - target_pos
         pos_ok = bool(np.all(abs(d) < np.array(eps)))
         pos_strict = bool(np.all(abs(d) < np.array(STRICT_EPS)))
         ori_ok = bool((stapler_qpose.max() - stapler_qpose.min()) < 0.02)
         released = bool(self.robot.is_left_gripper_open() and self.robot.is_right_gripper_open())
-        # 两种判据都记一笔：宽（仅位置，回转体该用这个）和严（位置+朝向，move_stapler_pad
-        # 的原判据）。一次跑同时拿到两个数，和 move_stapler_pad 的对比才是可比的。
-        # 宽严两套判据同时记录，和 move_stapler_pad 的对比才不会因为放宽而失真：
-        #   pos_ok      新的（垫子 footprint）
-        #   pos_strict  move_stapler_pad 的原容差 ±2cm
-        #   ori_ok      原任务的朝向项（杯子是回转体，不进判据，只记录）
+
+
+        # Record pos_ok (pad footprint), pos_strict (original 2 cm tolerance), and ori_ok (diagnostic only).
+
+
         if released and pos_ok and not self._logged:
             self._logged = True
             path = os.environ.get("CUP_PAD_LOG", "")

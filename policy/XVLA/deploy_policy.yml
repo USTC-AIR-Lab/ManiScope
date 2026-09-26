@@ -1,4 +1,3 @@
-# X-VLA (2toINF/X-VLA-RoboTwin2) 单内核 eval 基础字段。
 policy_name: XVLA
 task_name: null
 task_config: demo_clean
@@ -6,8 +5,7 @@ ckpt_setting: xvla
 seed: 0
 instruction_type: unseen
 
-# X-VLA 自带 FastAPI 服务（deploy.py），POST /act；见 suite/launch/start_xvla.sh
 base_url: http://localhost:7960
-domain_id: 6            # 官方 client 里 RoboTwin/Agilex 用的 soft-prompt 域
+domain_id: 6
 action_horizon: 30      # config.json num_actions=30
-gripper_thr: 0.7        # 官方 client: grip = 1 - 2*(g > 0.7)
+gripper_thr: 0.7

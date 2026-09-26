@@ -7,6 +7,5 @@
   "unseen": [
     "Put the {A} into the left basket.",
     "Please put the {A} into the left basket."
-  ],
-  "_note": "D2-08 mixture L3;判据=in;由 suite/table.py 生成"
+  ]
 }

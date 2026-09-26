@@ -1,15 +1,5 @@
 # -*- coding: utf-8 -*-
-"""为正式评测冻结每个场景的 100 个专家可解种子。
-
-为什么必须冻结成文件：现在 eval_policy 是从 st_seed 起逐个让专家试跑、能解的才收，
-这个搜索**依赖当时的场景代码和判据**。只要场景或判据动过，同一起点搜出来的种子集就变了，
-DM0.5 和 WLA 面对的初始状态就不是同一批，跨算法比较失去意义。
-
-除种子外还存每个种子的**初始位姿摘要**：事后可以验证两个算法确实面对同一初始状态，
-而不只是「用了同一个种子数字」——如果哪次改动让同一种子生成出不同布局，一比就发现。
-
-用法: gen_seeds.py <场景名> [目标条数=100] [起始种子=100000] [最多尝试=4000]
-"""
+"""Generate fixed expert-solvable seed files for a reviewed scene version. Expert filtering depends on scene code and predicates, so matching search starting points does not ensure matching initial states. Save accepted seeds and initial-state summaries. Run under the configured simulator environment."""
 import sys, os, json
 sys.path.append("./"); sys.path.append("./description/utils")
 import numpy as np
@@ -40,7 +30,7 @@ while len(seeds) < want and tries < maxtry:
         try: env.close_env()
         except Exception: pass
         seed += 1; continue
-    # 生成后、执行前先抓一份初始位姿
+    # Capture initial poses before execution and check workspace reachability.
     snap = {}
     try:
         for role, act in getattr(env, "_actors", {}).items():
@@ -60,12 +50,12 @@ while len(seeds) < want and tries < maxtry:
         seeds.append(seed)
         poses.append(snap)
         if len(seeds) % 10 == 0:
-            print("%s: %d/%d (试了 %d 个种子)" % (name, len(seeds), want, tries), flush=True)
+            print("%s: %d/%d (%d seeds tried)" % (name, len(seeds), want, tries), flush=True)
     seed += 1
 
 json.dump({"task": name, "count": len(seeds), "seed_start": seed0,
            "tried": tries, "yield": round(len(seeds) / max(1, tries), 4),
            "seeds": seeds, "init_poses": poses},
           open(out, "w"), indent=1)
-print("%s -> %s  收到 %d/%d，试了 %d 个种子，产出率 %.1f%%"
+print("%s -> %s  accepted %d/%d, tried %d seeds, yield %.1f%%"
       % (name, out, len(seeds), want, tries, 100.0 * len(seeds) / max(1, tries)))

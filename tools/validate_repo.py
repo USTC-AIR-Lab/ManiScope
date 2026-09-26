@@ -9,6 +9,10 @@ import sys
 import yaml
 ROOT = Path(__file__).resolve().parents[1]
 
+def personal_path(text):
+    """Detect concrete user-home paths without embedding deployment identities."""
+    return bool(re.search(r"/(?:home|Users)/[A-Za-z0-9_.-]+/", text))
+
 def validate(root=ROOT):
     errors = []
     manifest = yaml.safe_load((root / "suite/scenes_v2.yaml").read_text())
@@ -33,7 +37,14 @@ def validate(root=ROOT):
             if not (root / "policy" / p["policy_name"] / f).is_file(): errors.append(f"missing adapter: {name}/{f}")
         if p.get("launch") and not (root / p["launch"]).is_file(): errors.append(f"missing launcher: {name}")
         if not p.get("launch") and not p.get("external_only"): errors.append(f"undocumented external backend: {name}")
-    files = []
+    private_patterns = []
+    private_file = root / "configs/private/anonymity_patterns.txt"
+    if private_file.is_file():
+        for line in private_file.read_text().splitlines():
+            if not line.strip() or line.lstrip().startswith("#"): continue
+            try: private_patterns.append(re.compile(line))
+            except re.error: errors.append("invalid private anonymity pattern")
+    files = [p for p in root.iterdir() if p.is_file()]
     for folder in ["envs", "policy", "suite", "script", "tools", "tests", "description", "code_gen", "data", "configs", "requirements", "docs"]:
         for p in (root / folder).rglob("*"):
             if any(x in p.parts for x in ["__pycache__", "logs", "results", "out"]): continue
@@ -50,7 +61,9 @@ def validate(root=ROOT):
             try: ast.parse(text, filename=rel)
             except SyntaxError as exc: errors.append(f"{rel}:{exc.lineno}: syntax error")
         if 'curobo' in p.parts: continue  # Keep third-party snapshots unmodified.
-        if re.search(r"/(?:mnt/netdata|sharpa_vepfs_d)/", text): errors.append(f"personal deployment path: {rel}")
+        if personal_path(text): errors.append(f"personal deployment path: {rel}")
+        for pattern in private_patterns:
+            if pattern.search(text): errors.append(f"private deployment pattern matched: {rel}")
         if credential.search(text): errors.append(f"credential-like content: {rel}")
         if p.suffix == ".sh":
             result = subprocess.run(["bash", "-n", str(p)], capture_output=True, text=True)

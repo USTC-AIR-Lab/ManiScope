@@ -1,9 +1,8 @@
-"""D3-12 · attribute binding · L2 · 积木码垛
+"""D3-12 · attribute binding · L2
 
-颜色选紫/青/黄 —— 训练集里方块基本是红/蓝/绿，少见色更能考「按词选」而不是按先验蒙
-
-依赖的 RoboTwin 基础任务: 2 beat_block_hammer, 45 stack_blocks_three
-由 suite/table.py 生成，不要直接改这个文件。组合泛化测评专用，不用于训练。
+RoboTwin source-task links: 2 beat_block_hammer, 45 stack_blocks_three
+Generated candidate from suite/table.py for evaluation, not training.
+The checked-in release may include reviewed refinements; do not overwrite it blindly.
 """
 from ._compo_scene import CompoScene
 

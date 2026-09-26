@@ -7,6 +7,5 @@
   "unseen": [
     "Put the {A} into the skillet.",
     "Please put the {A} into the skillet."
-  ],
-  "_note": "D1-15 skill x object L2;判据=in;由 suite/table.py 生成"
+  ]
 }

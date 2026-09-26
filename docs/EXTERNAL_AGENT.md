@@ -1,25 +1,75 @@
-# Optional external EEF agent
+# API-driven EEF agent
 
-The `eef_bridge` registration reuses the legacy `policy/GPT6` adapter name. It is provider-neutral
-at the transport boundary. No commercial-provider implementation, API key, gateway, or proprietary
-bridge is included. This optional integration is not a ready-to-run named-model baseline.
+The `eef_bridge` registration uses `policy/GPT6` for a provider-neutral simulator adapter.
+The repository now includes `local_bridge.py`, `motion_limits.py` and a portable budget ledger
+implementation. Credentials, personal ledgers, provider accounts and campaign logs are excluded.
+The bridge preserves the supplied experiment prompt, tool schema, history construction and action
+bounds. Provider-specific compatibility modes are retained because they affect model inputs.
+This migration is not evidence that every provider or checkpoint has been evaluated.
 
-Run an authenticated HTTP bridge on loopback and set `AUTO_LAUNCH=0`, `PORT`, and
-`GPT6_BRIDGE_TOKEN_FILE` in private configuration. The token file is read by the adapter and sent
-as a Bearer authorization header. Keep it outside tracked files. The adapter only accepts loopback
-HTTP origins and disables HTTP redirects.
+## Private configuration
 
-The bridge must accept `POST /reset` and `POST /infer`, both returning JSON with HTTP 200.
-Infer input contains `instruction`, base64 PNG `images` for head/left/right cameras, `eef_state`,
-`joint_state`, `feedback`, `contact_feedback`, and `step`. See the adapter for exact field semantics.
-Infer output is one of:
+Run the bridge from the repository root on a credential-holding machine. Create a private writable
+runtime directory and set `AGENT_RUNTIME_DIR` to it. Keep it outside version control; `configs/private/`
+is ignored. Use restrictive permissions (directory 700, credential/config files 600).
 
-- `{"type":"finish","note":"..."}`
-- `{"type":"rejected","note":"..."}`
-- `{"type":"move_eef","arm":"left","position":[0,0,0],"quaternion_wxyz":[1,0,0,0],"gripper":1}`
+Supply a JSON config with `provider` (`responses`, `gemini`, `chat` or `anthropic`), `base_url`
+(an HTTPS API base), `model`, `reasoning_effort` and `api_key_file`. The key file contains one line.
+No provider URL or account is preconfigured. The bridge disables redirects and environment proxies.
 
-The last example describes the schema only, not a safe target for a particular scene.
-Commands are checked and bounded before execution. Optional `api_seconds` and `usage` fields are
-recorded for timing. The adapter has per-episode model-call and wall-time budgets; report them
-separately from action-policy step budgets. Audit and wall-clock files are written next to the token
-file, so place it in a private writable directory outside the source tree.
+Create these two files in `AGENT_RUNTIME_DIR` before the first run:
+
+- `budget_config.json`: `{"models": {"YOUR_MODEL": {"context": 1000000, "output": 65536, "input_rate": 0.001, "output_rate": 0.001}}}`.
+  Values here illustrate the schema only. Set verified maximum input/output tokens and conservative
+  USD-per-token bounds for the chosen endpoint, including cache-related charges where applicable.
+- `budget_ledger.json`: `{"cap_usd": 1, "prior_committed_upper_usd": 0, "requests": {}}`.
+  Set your actual spending cap and prior spending. Never overwrite an existing ledger to restart a
+  stopped campaign. The example cap deliberately cannot cover the example reservation.
+
+Each request attempt reserves its maximum configured cost under a file lock before sending.
+Failed or unknown requests retain their reservations. Supported usage records reduce the retained
+amount after a response. Missing or invalid configuration fails closed. A budget or quota stop
+requires reviewing private state before resuming; no historical account balance is shipped.
+The budget bound is only conservative if the operator's token and pricing bounds are valid.
+
+## Launch and transport
+
+```bash
+export AGENT_RUNTIME_DIR="$PWD/configs/private/agent"
+python3 -m policy.GPT6.local_bridge \
+  --config configs/private/provider.json \
+  --token-file "$AGENT_RUNTIME_DIR/bridge.token" \
+  --log-dir "$AGENT_RUNTIME_DIR/logs" \
+  --port 18770 --max-calls 120
+```
+
+The token file must not exist at startup; it is created with mode 600 and is distinct from the API
+key. Set `AUTO_LAUNCH=0`, `PORT=18770` and `GPT6_BRIDGE_TOKEN_FILE` for the simulator-side runner.
+If the simulator runs elsewhere, forward the loopback port through SSH and securely provide the
+same bridge token to that machine. Never forward the API key. The adapter accepts only loopback
+HTTP origins and sends the token in the authorization header.
+
+The bridge accepts `POST /reset` and `POST /infer`. Reset clears per-episode history and call count.
+Infer receives instruction, head/left/right RGB images, measured EEF/joint state, execution/contact
+feedback and step number. It returns `move_eef`, `rejected` or `finish`. The model gets no privileged
+object poses. Its finish statement does not determine simulator success.
+
+`move_eef` includes arm, absolute position, quaternion in wxyz order, gripper aperture, phase and
+note. Phase-dependent translation/rotation bounds are defined in `motion_limits.py`; the simulator
+adapter applies execution-side checks and segmented motion. Gripper-only commands retain the
+measured pose. Other phases retain the gripper command. Model-call envelopes and internal controller
+tracking thresholds are separate quantities.
+
+The adapter configuration permits 120 model calls per episode and its wall budget is 3300 seconds.
+The standalone bridge defaults to 40 calls unless overridden: use the explicit 120-call option
+above to match the adapter setting. Record both budgets, API retry count and provider configuration.
+A replay option is provided for saved-action diagnostics, not as an evaluated agent result.
+Audit/video files are written beside the simulator-side token; use a private writable directory.
+
+## Migration scope
+
+Only source modules were migrated. The campaign-specific hardcoded account ledger was replaced
+with explicit private configuration, an unreachable duplicate HTTP-error handler was removed,
+and quota handling uses HTTP status/structured provider codes. These affect deployment/error
+handling; the prompt, tool schema and model-level motion bounds are preserved. CPU tests mock
+provider responses; they do not certify live API or GPU simulation behavior.

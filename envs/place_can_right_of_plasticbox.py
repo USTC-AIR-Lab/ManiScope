@@ -1,9 +1,8 @@
-"""D2-10 · skill x spatial · L2 · 仓储上架
+"""D2-10 · skill x spatial · L2
 
-方向从 left 翻成 right：收纳箱在最右、往左放时落点跨度最大，专家稳定 0/8（可达范围 |x|<=0.22 放不下）。翻成收纳箱在左、往右放，语义等价但几何可行。
-
-依赖的 RoboTwin 基础任务: 27 place_cans_plasticbox, 21 place_a2b_left
-由 suite/table.py 生成，不要直接改这个文件。组合泛化测评专用，不用于训练。
+RoboTwin source-task links: 27 place_cans_plasticbox, 21 place_a2b_left
+Generated candidate from suite/table.py for evaluation, not training.
+The checked-in release may include reviewed refinements; do not overwrite it blindly.
 """
 from ._compo_scene import CompoScene
 

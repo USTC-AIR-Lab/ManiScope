@@ -1,9 +1,8 @@
-"""D2-08 · mixture · L3 · 家务分拣
+"""D2-08 · mixture · L3
 
-混合维度：源场景 put_toycar_left_basket + 一个语义无关的干扰物（112_tea-box）。地上多一个茶叶盒。判据/指令/依赖全部继承源场景，只多干扰物 —— 和源场景的分差就是「干扰物 + 背景变化」这一维的代价。
-
-依赖的 RoboTwin 基础任务: 33 place_object_basket, 21 place_a2b_left
-由 suite/table.py 生成，不要直接改这个文件。组合泛化测评专用，不用于训练。
+RoboTwin source-task links: 33 place_object_basket, 21 place_a2b_left
+Generated candidate from suite/table.py for evaluation, not training.
+The checked-in release may include reviewed refinements; do not overwrite it blindly.
 """
 from ._compo_scene import CompoScene
 

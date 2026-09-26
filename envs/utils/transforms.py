@@ -57,7 +57,7 @@ def local_timer(name: str):
 
 class Point:
     points: list["Point"] = []
-    """特定 base 坐标系下的点"""
+    """A point expressed in a specific base frame."""
 
     def __init__(
         self,
@@ -156,7 +156,7 @@ class Point:
         now_pose_mat[:3, :3] = (base_trans_mat[:3, :3] @ init_pose_mat[:3, :3] @ base_trans_mat[:3, :3].T)
         now_pose_mat[:3, 3] = base_trans_mat[:3, :3] @ init_pose_mat[:3, 3]
 
-        # 转化为世界坐标
+        # Transform into world coordinates.
         p = now_pose_mat[:3, 3] + now_base_mat[:3, 3]
         q_mat = now_pose_mat[:3, :3] @ now_base_mat[:3, :3]
         return sapien.Pose(p, t3d.quaternions.mat2quat(q_mat))
@@ -167,7 +167,7 @@ class Point:
         return opt_mat
 
     def base2world(self, entity_mat, scale=1.0) -> sapien.Pose:
-        """将 base 坐标系下的矩阵转换到世界坐标系下"""
+        """Transform a matrix from the base frame to world coordinates."""
         entity_mat = np.array(entity_mat)
         base_mat = self.base.get_pose().to_transformation_matrix()
         p = entity_mat[:3, 3] * scale + base_mat[:3, 3]
@@ -175,7 +175,7 @@ class Point:
         return sapien.Pose(p, t3d.quaternions.mat2quat(q_mat))
 
     def word2base(self, entity_mat, scale=1.0) -> sapien.Pose:
-        """将世界坐标系下的矩阵转换到 base 坐标系下"""
+        """Transform a matrix from world coordinates to the base frame."""
         entity_mat = np.array(entity_mat)
         base_mat = self.base.get_pose().to_transformation_matrix()
         p = entity_mat[:3, 3] - base_mat[:3, 3]
@@ -183,7 +183,7 @@ class Point:
         return sapien.Pose(p, t3d.quaternions.mat2quat(q_mat))
 
     def set_pose(self, new_pose: sapien.Pose):
-        """更新点的位置"""
+        """Update the point position."""
         self.pose = new_pose
         self.point.set_pose(self.pose)
         self.mat = self.word2base(new_pose.to_transformation_matrix()).to_transformation_matrix()
@@ -279,18 +279,7 @@ def rotate_along_axis(
     towards=None,
     camera_face=None,
 ) -> list:
-    """
-    以 center 为中心，沿着指定轴旋转指定角度。通过 towards 可指定旋转方向（方向为 center->target 向量与 towards 向量乘积为正的方向）
-
-    target_pose: 目标点（比如在物体正上方的预抓取点）
-    center_pose: 中心点（比如物体的位置）
-    axis: 旋转轴
-    theta: 旋转角度（单位：弧度）
-    axis_type: 旋转轴的类型（'center'：相对于 center_pose，'target'：相对于 target_pose，'world'：世界坐标系），默认是 'center'
-    towards: 旋转方向（可选），如果指定了这个参数，则会根据这个参数来决定旋转的方向
-    camera_face: 相机朝向（可选），会限制相机向量与该向量点积为正；如果设置为 None，只旋转不考虑相机朝向
-    返回值：列表，前3个元素是坐标，后4个元素是四元数
-    """
+    """Rotate target_pose around center_pose by theta radians about axis. axis_type selects center, target, or world coordinates (default: center). Optional towards selects the rotation direction by the target-center dot product. Optional camera_face requires a positive camera-direction dot product. Return xyz and a quaternion."""
     target_pose, center_pose = _toPose(target_pose), _toPose(center_pose)
     if theta == 0:
         return target_pose.p.tolist() + target_pose.q.tolist()
@@ -321,9 +310,7 @@ def rotate_along_axis(
 
 
 def rotate2rob(target_pose, rob_pose, box_pose, theta: float = 0.5) -> list:
-    """
-    向指定的 rob_pose 偏移
-    """
+    """Offset toward the specified robot pose."""
     target_pose, rob_pose, box_pose = (
         _toPose(target_pose),
         _toPose(rob_pose),
@@ -383,9 +370,7 @@ def cal_quat_dis(quat1, quat2):
 
 
 def get_align_matrix(v1: np.ndarray, v2: np.ndarray) -> np.ndarray:
-    """
-    获取从 v1 到 v2 的旋转矩阵
-    """
+    """Compute the rotation matrix from v1 to v2."""
     v1 = np.array(v1).reshape(3)
     v2 = np.array(v2).reshape(3)
 
@@ -406,9 +391,7 @@ def generate_rotate_vectors(
     base: np.ndarray | sapien.Pose | list = None,
     vector: np.ndarray | list = [1, 0, 0],
 ) -> np.ndarray:
-    """
-    获取从 base 到 axis 的旋转矩阵
-    """
+    """Compute the rotation matrix from base to axis."""
     if base is None:
         base = np.eye(4)
     else:
@@ -438,9 +421,7 @@ def generate_rotate_vectors(
 
 
 def get_product_vector(v1: np.ndarray, v2: np.ndarray) -> np.ndarray:
-    """
-    获取 v2 在 v1 上的投影向量
-    """
+    """Project v2 onto v1."""
     v1 = np.array(v1).reshape(3)
     v1 = v1 / np.linalg.norm(v1)
     v2 = np.array(v2).reshape(3)
@@ -456,39 +437,18 @@ def get_place_pose(
     actor_axis_type: Literal["actor", "world"] = "actor",
     z_transform: bool = True,
 ) -> list:
-    """
-    获取物体应当被放置到的位置
-    考虑因素：
-        1. 三维坐标与给定坐标一致
-        2. 物体的朝向合理
-            - 物体 z 轴与给定坐标 z 轴一致
-            - 满足在 xy 平面上的一定约束
-                - 无约束（直接采用物体当前的 x,y 在 xOy 平面上的投影）
-                - 物体的 x 轴对齐给定 x 轴
-                - 选取物体的 x 轴与给定的世界轴单位向量集合中点积最小的方向
-
-    actor_pose: 物体当前的 pose
-    target_pose: 物体应当被放置到的位置
-    constrain: 物体的约束类型
-        - free: 无约束
-        - align: 物体的 x 轴与给定的世界轴向量集合中点积最小的方向
-    align_axis: 给定的世界轴向量集合，如果设置为 None，默认使用 target_pose 的 x 轴
-    actor_axis: 计算点积的 actor 轴，默认使用 x 轴
-    actor_axis_type: actor_axis 的类型，默认使用局部坐标系
-        - actor: actor_pose 的局部坐标系
-        - world: 世界坐标系
-    """
+    """Compute a placement pose matching the target position and vertical axis. free preserves a suitable planar orientation; align chooses an actor-axis direction against align_axis. align_axis defaults to the target x axis. actor_axis defaults to x and can use actor-local or world coordinates according to actor_axis_type."""
     actor_pose_mat = _toPose(actor_pose).to_transformation_matrix()
     target_pose_mat = _toPose(target_pose).to_transformation_matrix()
 
-    # 将物体的三维坐标与给定坐标对齐
+    # Align object position to the specified frame.
     actor_pose_mat[:3, 3] = target_pose_mat[:3, 3]
 
     target_x = target_pose_mat[:3, 0]
     target_y = target_pose_mat[:3, 1]
     target_z = target_pose_mat[:3, 2]
 
-    # 将物体的 z 轴与给定坐标的 z 轴对齐
+    # Align the object z axis to the specified z axis.
     actor2world = np.array([[1.0, 0.0, 0.0], [0.0, 0.0, -1.0], [0.0, 1.0, 0.0]]).T
     if z_transform:
         z_align_matrix = get_align_matrix(actor_pose_mat[:3, :3] @ actor2world[:3, 2], target_z)

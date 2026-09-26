@@ -107,3 +107,11 @@ def test_missing_local_asset_is_rejected(tmp_path):
     mod=importlib.util.module_from_spec(spec);spec.loader.exec_module(mod)
     with pytest.raises(FileNotFoundError):
         mod.resolve_robot_config({"robot_cfg":{"kinematics":{"urdf_path":"urdf/missing.urdf"}}},tmp_path/"curobo.yml")
+
+
+def test_generic_personal_path_detection():
+    checker = load('validate_repo')
+    for prefix in ('/home', '/Users'):
+        assert checker.personal_path(prefix + '/example-user/project')
+        assert not checker.personal_path(prefix + '/<user>/project')
+    assert not checker.personal_path('https://example.invalid/project')

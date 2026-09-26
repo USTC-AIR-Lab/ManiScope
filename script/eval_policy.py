@@ -75,9 +75,9 @@ def get_eval_wrist_video_size(args):
     return f"{int(cfg['w'])}x{int(cfg['h'])}"
 
 
-# 这些任务默认额外录一路左腕：垃圾桶在 head 相机的最左边缘、几乎看不进桶内，
-# 而「手到桶上方要不要松手」恰恰只在腕部相机里看得清。
-# 其余任务默认不录（每条 episode 多一个文件）。EVAL_WRIST_VIDEO=1/0 可强制开关。
+# Optional left-wrist recordings improve bin visibility; EVAL_WRIST_VIDEO overrides the default.
+
+
 WRIST_VIDEO_DEFAULT_TASKS = {
     "adjust_bottle_dustbin",
     "put_bottles_dustbin",
@@ -85,14 +85,14 @@ WRIST_VIDEO_DEFAULT_TASKS = {
 
 
 def want_wrist_video(args):
-    # 配置里没采腕部相机就没得录，硬起管道只会留下一个 0 帧的空 mp4
+    # Only start wrist video when that camera is configured.
     if not args.get("camera", {}).get("collect_wrist_camera", True):
         return False
     override = os.environ.get("EVAL_WRIST_VIDEO", "").strip()
     if override:
         return parse_bool(override)
-    # 默认不录腕部。正式评测只保留 head 相机那一路：腕部每条 episode 多一个文件，
-    # 而全量保存成功+失败视频时文件数本来就大。要看腕部时 EVAL_WRIST_VIDEO=1 单开。
+    # Record head-camera video by default; EVAL_WRIST_VIDEO=1 enables an additional wrist file.
+
     return False
 
 
@@ -136,7 +136,7 @@ def main(usr_args):
     policy_name = usr_args["policy_name"]
     instruction_type = usr_args["instruction_type"]
     skip_get_obs_within_replan = parse_bool(usr_args.get("skip_get_obs_within_replan", False))
-    # 统一评测契约：默认 50 条（不再是官方的 100）。runner 也会显式传 --eval_num_episodes。
+    # Default to 50 episodes; the runner may explicitly override eval_num_episodes.
     eval_num_episodes = int(usr_args.get("eval_num_episodes", 50))
     if eval_num_episodes <= 0:
         raise ValueError(f"`eval_num_episodes` must be > 0, got: {eval_num_episodes}")
@@ -313,7 +313,7 @@ def eval_policy(task_name,
     saved_success_videos = 0
     saved_failure_videos = 0
 
-    # ---- 冻结种子：正式评测必须走这条路 ----
+    # Use frozen seeds in formal evaluation. Expert replay still populates instruction placeholders but does not select a different accepted seed.
     frozen_seeds = None
     if os.environ.get("ROBOTWIN_FROZEN_SEEDS", "1") != "0":
         _sp = os.path.join("suite", "seeds", "%s.json" % task_name)
@@ -323,10 +323,10 @@ def eval_policy(task_name,
             frozen_seeds = list(_sd.get("seeds") or [])
             if len(frozen_seeds) < test_num:
                 raise RuntimeError(
-                    "%s 的冻结种子只有 %d 个，不足 %d 条；请先补齐 suite/seeds/%s.json"
+                    "%s has only %d frozen seeds, fewer than requested %d; populate suite/seeds/%s.json first"
                     % (task_name, len(frozen_seeds), test_num, task_name))
             frozen_seeds = frozen_seeds[:test_num]
-            print("[frozen] %s 使用冻结种子 %d 个（跳过专家搜索）" % (task_name, len(frozen_seeds)))
+            print("[frozen] %s uses %d frozen seeds (no expert seed search)" % (task_name, len(frozen_seeds)))
 
     expert_attempts = 0
     expert_attempt_limit = int(os.environ.get("ROBOTWIN_MAX_EXPERT_SEED_ATTEMPTS", "100"))
@@ -334,11 +334,10 @@ def eval_policy(task_name,
         raise ValueError("ROBOTWIN_MAX_EXPERT_SEED_ATTEMPTS must be positive")
     while succ_seed < test_num:
         if frozen_seeds is not None:
-            # 种子已由 gen_seeds.py 用同一份场景代码验证过专家可解，这里直接取用。
+
             now_seed = frozen_seeds[succ_seed]
-        # 注意：即使用冻结种子，专家回放也**必须照跑** —— 指令模板的占位符
-        # （{A} 对应哪个资产实例）是从 play_once 写进 info 里拿的，跳过就没有了。
-        # 冻结种子只是不再用专家成败来决定取舍（种子已在 gen_seeds.py 验证过）。
+
+
         if expert_check:
             if expert_attempts >= expert_attempt_limit:
                 raise RuntimeError(
@@ -376,13 +375,9 @@ def eval_policy(task_name,
                 TASK_ENV.plan_success and TASK_ENV.check_success()):
             succ_seed += 1
             suc_test_seed_list.append(now_seed)
-            # 找到一个可用种子就把预算清零 —— 这个上限的语义应该是
-            # 「连续多少次找不到可用种子就放弃」，而不是「整轮 test_num 条 episode
-            # 一共只能试这么多次」。原来是累计的：专家产出率 12% 的场景跑 20 条
-            # 平均需要 ~160 次尝试，100 的总预算必然中途耗尽，于是场景跑到一半
-            # 抛异常退出、连结果文件都不写。实测已经有 6 个场景栽在这上面
-            # （ref_cube_on_plate_to_pad 7/20、attr_color_bottle_basket 11/20 等）。
-            # 报错信息本身写的就是 "after N attempts" 的连续语义，实现和它对不上。
+            # Reset the failed-seed search budget after a usable seed: the limit counts consecutive failures, not attempts across the entire run.
+
+
             expert_attempts = 0
         else:
             now_seed += 1
@@ -391,24 +386,24 @@ def eval_policy(task_name,
 
         args["render_freq"] = render_freq
 
-        # 固定录**前 N 个种子**（不论成败）。原来是「遇到即录 N 个成功 + N 个失败」，
-        # 那样两个算法录到的是不同的场景实例，没法并排比。按种子序号录，
-        # 大家看的就是同一批初始状态。N 由 ROBOTWIN_VIDEO_FIRST_N 控制，默认 10。
+        # Record the first N seeds regardless of outcome so systems share video initial states; ROBOTWIN_VIDEO_FIRST_N defaults to 10.
+
+
         _vid_n = int(os.environ.get("ROBOTWIN_VIDEO_FIRST_N", "10"))
         should_record_video = base_eval_video_save_dir is not None and (succ_seed - 1) < _vid_n
         args["eval_video_save_dir"] = base_eval_video_save_dir if should_record_video else None
         TASK_ENV.setup_demo(now_ep_num=now_id, seed=now_seed, is_test=True, **args)
         episode_info_list = [episode_info["info"]]
-        # 指令必须由种子唯一确定，否则同一个种子在不同算法下拿到不同句子。
-        # generate_episode_descriptions 内部用全局 random 洗牌 + 抽物体描述，
-        # 所以这里先把全局 random 按种子固定，再用独立的 RandomState 抽最终句子。
+        # Seed global template shuffling and use an independent RandomState for final instruction sampling.
+
+
         import random as _rnd
         _rnd.seed(int(now_seed))
         results = generate_episode_descriptions(args["task_name"], episode_info_list, test_num)
         instruction = np.random.RandomState(int(now_seed)).choice(results[0][instruction_type])
         TASK_ENV.set_instruction(instruction=instruction)  # set language instruction
-        # 把每条 episode 实际用的那句指令落盘。原来只是 np.random.choice 现抽、
-        # 不留痕迹，事后没法把视频和指令对上，也就没法核对判据是不是判对了。
+        # Save the actual instruction for each episode for video and predicate auditing.
+
         if base_eval_video_save_dir is not None:
             try:
                 os.makedirs(base_eval_video_save_dir, exist_ok=True)
@@ -472,7 +467,7 @@ def eval_policy(task_name,
 
         succ = False
         reset_func(model)
-        # 推理延迟 / 调用次数记录（论文横向对比）：只包 eval() 这一层，对所有策略口径一致
+        # Measure eval-call timing consistently and save it after any post-success recording grace period.
         _lat = []
         _t_ep0 = time.time()
         if hasattr(model, "infer_times"):
@@ -490,11 +485,11 @@ def eval_policy(task_name,
             _lat.append(time.time() - _t0)
             if TASK_ENV.eval_success:
                 succ = True
-                # 不立刻退出：让 take_action 的宽限期把「接触之后」的动作录完。
+
                 if getattr(TASK_ENV, "_post_success_actions", 0) >= int(
                         getattr(TASK_ENV, "POST_SUCCESS_ACTIONS", 0)):
                     break
-        # 推理延迟落盘
+
         if base_eval_video_save_dir is not None:
             try:
                 _n = len(_lat)
@@ -513,8 +508,8 @@ def eval_policy(task_name,
                                  int(getattr(TASK_ENV, "take_action_cnt", 0)), time.time() - _t_ep0))
             except Exception:
                 pass
-        # 抬起类任务：把这条 episode 达到过的最大离地净空落盘。
-        # 判据只给一个布尔值，事后分不出「差 3 毫米」和「压根没抬起来」。
+        # Record maximum lift clearance for post-run diagnostics.
+
         _c = getattr(TASK_ENV, "_max_clearance", None)
         if base_eval_video_save_dir is not None and _c is not None:
             try:
@@ -527,18 +522,18 @@ def eval_policy(task_name,
                 with open(os.path.join(base_eval_video_save_dir, "_lift.txt"),
                           "a", encoding="utf-8") as _f:
                     _ch = getattr(TASK_ENV, "_max_clearance_held", -1e9)
-                    _f.write("episode%d\t最大净空=%.4f\t被夹着时最大净空=%s\t阈值=%.4f\t目标位移=%s\t最大干扰物位移=%s\t%s\n" % (
+                    _f.write("episode%d	max_clearance=%.4f	max_gripped_clearance=%s	threshold=%.4f	target_displacement=%s	max_distractor_displacement=%s	%s\n" % (
                         succ_seed - 1, _c,
-                        ("%.4f" % _ch) if _ch > -1e8 else "从未夹住",
+                        ("%.4f" % _ch) if _ch > -1e8 else "never_gripped",
                         getattr(TASK_ENV, "_clearance_thr", 0.0) or 0.0,
                         ("%.4f" % _dt) if _dt is not None else "-",
                         ("%.4f" % _dd) if _dd is not None else "-",
-                        "成功" if succ else "失败"))
+                        "success" if succ else "failure"))
             except Exception:
                 pass
 
-        # 接触类任务：把这条 episode 实测的最近接触距离落盘。
-        # 判成功与否只有一个布尔值，事后没法判断「差多少」；头部相机也看不出来。
+        # Record minimum contact distance, which a binary success flag does not expose.
+
         _d = getattr(TASK_ENV, "_min_contact_d", None)
         _want = False
         try:
@@ -551,11 +546,11 @@ def eval_policy(task_name,
             try:
                 with open(os.path.join(base_eval_video_save_dir, "_contact.txt"),
                           "a", encoding="utf-8") as _f:
-                    _f.write("episode%d\t最近距离=%s\t阈值=%.4f\t%s\n" % (
+                    _f.write("episode%d	min_distance=%s	threshold=%.4f	%s\n" % (
                         succ_seed - 1,
-                        ("从未接触" if _d >= 1e8 else "%.4f" % _d),
+                        ("never_contacted" if _d >= 1e8 else "%.4f" % _d),
                         getattr(TASK_ENV, "_contact_thr", 0.0) or 0.0,
-                        "成功" if succ else "失败"))
+                        "success" if succ else "failure"))
             except Exception:
                 pass
 
@@ -577,7 +572,7 @@ def eval_policy(task_name,
                         saved_failure_videos += 1
                 else:
                     os.remove(video_tmp_path)
-                # 腕部那一路跟主视频同去留，文件名加 _wrist 后缀
+                # Apply the same retention policy to wrist video, using the _wrist suffix.
                 if wrist_tmp_path is not None and os.path.exists(wrist_tmp_path):
                     if keep_video:
                         stem, ext = os.path.splitext(video_filename)

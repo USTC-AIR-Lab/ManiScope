@@ -1,9 +1,8 @@
-"""D1-15 · mixture · L3 · 厨房备餐
+"""D1-15 · mixture · L3
 
-混合维度：源场景 place_teabox_skillet + 一个语义无关的干扰物（073_rubikscube）。灶台上多一个魔方。判据/指令/依赖全部继承源场景，只多干扰物 —— 和源场景的分差就是「干扰物 + 背景变化」这一维的代价。
-
-依赖的 RoboTwin 基础任务: 24 place_bread_skillet
-由 suite/table.py 生成，不要直接改这个文件。组合泛化测评专用，不用于训练。
+RoboTwin source-task links: 24 place_bread_skillet
+Generated candidate from suite/table.py for evaluation, not training.
+The checked-in release may include reviewed refinements; do not overwrite it blindly.
 """
 from ._compo_scene import CompoScene
 

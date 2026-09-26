@@ -1,11 +1,4 @@
-"""OpenWAM-α (OpenWAM/OpenWAM-Alpha-Sim-RoboTwin-Full) 的 RoboTwin eval 插件。
-
-官方 benchmarks/robotwin/openwam2robotwin_interface.py 的原样移植：每个仿真步送一次观测、取一个动作
-（服务端内部管理动作分块），eef 口径：状态 20 维 = robotwin_endpose_to_eef20d(endpose)（xyz+rot6d+grip ×2），
-动作 20 维 -> eef20d_to_ee16d -> take_action(action_type="ee")。四个转换函数从官方 benchmarks/utils/action_conversion.py
-一字不改复制（纯 numpy）。传输换成本内核统一的 HTTP /v1/infer（桥接 policy/OpenWAM/bridge.py -> 官方 websocket 服务）。
-与其他策略一致：eval_success / step_lim 中断、NaN 报错、record_stage、infer_times 记服务端耗时。
-"""
+"""OpenWAM RoboTwin adapter following the upstream interface. Submit one observation per simulation step and execute one returned action while the server manages its chunk. Retain the official end-effector postprocessing."""
 
 from __future__ import annotations
 
@@ -143,7 +136,6 @@ def robotwin_endpose_to_eef20d(
 _RC365_GRIPPER_WIDTH_OPEN = 0.1
 
 
-
 def _png_b64(rgb):
     return base64.b64encode(cv2.imencode(".png", cv2.cvtColor(np.asarray(rgb), cv2.COLOR_RGB2BGR))[1].tobytes()).decode()
 
@@ -170,7 +162,7 @@ class OpenWAMClient:
             self.infer_times.append(float(body["infer_time"]))
         act = np.asarray(body["actions"][0], dtype=np.float32).reshape(-1)
         if act.size != 20 or not np.isfinite(act).all():
-            raise RuntimeError(f"推理服务返回异常动作 {act.shape}")
+            raise RuntimeError(f"Service returned invalid actions {act.shape}")
         return eef20d_to_ee16d(act)
 
     def record_stage(self, TASK_ENV):
@@ -205,7 +197,7 @@ def eval(TASK_ENV, model, observation):
     if bridge is not None:
         bridge()
     action = model.get_action(TASK_ENV.get_instruction(), observation)
-    TASK_ENV.take_action(action, action_type="ee")        # 官方：每步一个动作
+    TASK_ENV.take_action(action, action_type="ee")        # Execute one action per upstream step.
     model.record_stage(TASK_ENV)
     return TASK_ENV.get_obs()
 

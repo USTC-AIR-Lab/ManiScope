@@ -108,11 +108,11 @@ class Base_Task(gym.Env):
         self.record_cluttered_objects = list()  # record cluttered objects info
 
         self.eval_success = False
-        # 每条 episode 重置宽限计数器，否则第二条起会以为宽限期已用完、
-        # 判成功后立刻结束，录不到接触之后的动作。
+        # Reset grace-period and diagnostic counters for each episode; never accumulate them across rollouts.
+
         self._post_success_actions = None
-        # 诊断量也要逐条 episode 重置，否则在同一进程里累积 ——
-        # 第一版就漏了，导致 _lift.txt 里每条的「最大净空」都是同一个数。
+
+
         self._max_clearance = -1e9
         self._max_clearance_held = -1e9
         self._clearance_thr = None
@@ -584,16 +584,14 @@ class Base_Task(gym.Env):
 
     def _set_eval_video_ffmpeg(self, ffmpeg, wrist_ffmpeg=None):
         self.eval_video_ffmpeg = ffmpeg
-        # 可选的第二路录像：左腕相机。head 相机里垃圾桶在最左边缘、几乎看不进桶内，
-        # 而「要不要松手」恰恰发生在腕部相机视野里，所以单开一路方便回看。
+        # Optional left-wrist video provides a view into the bin that the head camera lacks.
+
         self.eval_wrist_ffmpeg = wrist_ffmpeg
 
     def _write_eval_video_frame(self):
-        # 录像帧必须**当场重渲染**，不能读 self.now_obs 缓存。
-        # now_obs 只在 get_obs() 里刷新，而单内核 eval 每个 action chunk 才调一次 get_obs()；
-        # DM0.5 的 chunk=50，于是 600 帧的视频里只有约 12 张不同画面、每张持续 4~5 秒 ——
-        # 这就是肉眼看到的「跳帧」。根因与实测见 suite/diag/notes_video.md。
-        # 重渲染后帧数/帧率/时长完全不变（仍是每 take_action 一帧 @10fps），只是内容跟得上当前仿真步。
+        # Render each video frame from current simulation state. now_obs is refreshed per chunk and would repeat stale images; frame count and cadence stay unchanged.
+
+
         self._update_render()
         self.cameras.update_picture()
         rgb = self.cameras.get_rgb()
@@ -1508,15 +1506,15 @@ class Base_Task(gym.Env):
 
         return True  # TODO: maybe need try error
 
-    # 判成功后还允许策略继续执行几个控制周期，专门用来把「接触之后发生了什么」
-    # 录进视频（锤子砸下、铃被按下）。成功标志已锁定，不影响成绩。
+    # After success is latched, allow a short control-step grace period to record the contact aftermath without changing the score.
+
     POST_SUCCESS_ACTIONS = 12
 
     def take_action(self, action, action_type:Literal['qpos', 'ee']='qpos'):  # action_type: qpos or ee
         if self.take_action_cnt == self.step_lim:
             return
         if self.eval_success:
-            # 宽限期：再放行几步真实动作，而不是原地空转物理。
+
             if getattr(self, "_post_success_actions", 0) >= int(self.POST_SUCCESS_ACTIONS):
                 return
             self._post_success_actions = getattr(self, "_post_success_actions", 0) + 1
@@ -1698,18 +1696,17 @@ class Base_Task(gym.Env):
             if self.check_success():
                 self.eval_success = True
                 self.get_obs() # update obs
-                # 判成功的那一帧往往还在运动中间，只录这一帧的话回放会停在
-                # 「看不出到底做没做到」的位置。再空跑一段物理、逐帧录下来，
-                # 让视频停在稳定的终态上。不发新动作，所以不影响判据。
+                # Record post-contact motion using the grace-period controls; idle physics alone can produce a misleading static tail.
+
+
                 if (self.eval_video_path is not None):
                     self._write_eval_video_frame()
-                # 这里不再空转物理补帧 —— 那样机械臂的驱动目标不变，录出来是
-                # 一段静止画面。后续动作由 take_action 的宽限期负责录，见
+
+
                 # POST_SUCCESS_ACTIONS。
-                # 只在**第一次**判成功时初始化计数器。check_success 锁定后每一步都
-                # 返回 True，无条件赋 0 会让计数器永远回到 0、永远到不了上限，
-                # episode 一路空跑到 step_lim=1000 才结束（实测比正常慢 20 倍，
-                # 成功率越高的场景卡得越死）。
+                # Initialize the grace counter only on the first success; resetting it on every latched check would prevent termination.
+
+
                 if getattr(self, "_post_success_actions", None) is None:
                     self._post_success_actions = 0
                 return

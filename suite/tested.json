@@ -1,9 +1,46 @@
-{"_note": "实测可抓白名单 v2。v1 有 5 个误判：我用 [1,0,0,0] 测出 0/8 就判定物体抓不起来，实际是姿态问题——规范姿态 [0.5,0.5,0.5,0.5] 下全部 2/2。改物体前必须先试规范姿态。",
- "ok": ["112_tea-box","105_sauce-can","100_seal","090_trophy","084_woodenmallet","080_pillbottle",
-        "073_rubikscube","071_can","057_toycar","052_dumbbell","050_bell","039_mug","021_cup",
-        "075_bread","041_shoe","047_mouse","107_soap","077_phone","070_paymentsign","102_roller"],
- "side_only": ["001_bottle"],
- "marginal": ["058_markpen","091_kettle"],
- "bad": ["035_apple","043_book","049_shampoo"],
- "broken_ids": ["060_kitchenpot"],
- "_corrected": ["075_bread 0/8->2/2","041_shoe 0/8->2/2","047_mouse 0/8->2/2","107_soap 0/8->2/2","077_phone 1/8->2/2"]}
+{
+  "ok": [
+    "112_tea-box",
+    "105_sauce-can",
+    "100_seal",
+    "090_trophy",
+    "084_woodenmallet",
+    "080_pillbottle",
+    "073_rubikscube",
+    "071_can",
+    "057_toycar",
+    "052_dumbbell",
+    "050_bell",
+    "039_mug",
+    "021_cup",
+    "075_bread",
+    "041_shoe",
+    "047_mouse",
+    "107_soap",
+    "077_phone",
+    "070_paymentsign",
+    "102_roller"
+  ],
+  "side_only": [
+    "001_bottle"
+  ],
+  "marginal": [
+    "058_markpen",
+    "091_kettle"
+  ],
+  "bad": [
+    "035_apple",
+    "043_book",
+    "049_shampoo"
+  ],
+  "broken_ids": [
+    "060_kitchenpot"
+  ],
+  "_corrected": [
+    "075_bread 0/8->2/2",
+    "041_shoe 0/8->2/2",
+    "047_mouse 0/8->2/2",
+    "107_soap 0/8->2/2",
+    "077_phone 1/8->2/2"
+  ]
+}

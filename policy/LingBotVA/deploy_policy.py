@@ -1,13 +1,4 @@
-"""LingBot-VA (robbyant/lingbot-va-posttrain-robotwin) 的 RoboTwin eval 插件。
-
-官方 evaluation/robotwin/eval_polict_client_openpi.py 的 episode 循环原样移植（HTTP 经 policy/LingBotVA/bridge.py 到官方
-websocket 服务）：
-  * episode 开始：/v1/reset(prompt)；记录初始 eef 位姿 [左 endpose7, 左夹爪, 右 endpose7, 右夹爪]，first_obs = 初始观测
-  * 每轮：/v1/infer(first_obs) -> action [16, F, S]（相对初始位姿的 eef：xyz+quat+grip ×2）；
-    第一轮跳过第 0 帧；逐步 add_init_pose + 四元数归一化 -> take_action(ee)；每 action_per_frame=S/4 步抓一帧观测为关键帧；
-    整块执行完后 /v1/kv(关键帧) 更新服务端 KV 缓存；官方在块末检查 eval_success
-  * 与本内核一致：eval_success / step_lim 中断（提前中断后不再更新缓存，episode 已结束）；NaN 报错；record_stage；infer_times
-"""
+"""LingBot-VA evaluation adapter using the official reset/infer/cache protocol through the HTTP bridge. State is joint position; actions follow the upstream relative end-effector convention."""
 
 import base64
 import json
@@ -26,7 +17,7 @@ def _png_b64(rgb):
     return base64.b64encode(cv2.imencode(".png", cv2.cvtColor(np.asarray(rgb), cv2.COLOR_RGB2BGR))[1].tobytes()).decode()
 
 
-def add_eef_pose(new_pose, init_pose):            # 官方原样
+def add_eef_pose(new_pose, init_pose):            # Match the upstream implementation.
     new_pose_R = R.from_quat(new_pose[3:7][None])
     init_pose_R = R.from_quat(init_pose[3:7][None])
     out_rot = (init_pose_R * new_pose_R).as_quat().reshape(-1)
@@ -34,7 +25,7 @@ def add_eef_pose(new_pose, init_pose):            # 官方原样
     return np.concatenate([out_trans, out_rot, new_pose[7:8]])
 
 
-def add_init_pose(new_pose, init_pose):           # 官方原样
+def add_init_pose(new_pose, init_pose):           # Match the upstream implementation.
     left_pose = add_eef_pose(new_pose[:8], init_pose[:8])
     right_pose = add_eef_pose(new_pose[8:], init_pose[8:])
     return np.concatenate([left_pose, right_pose])
@@ -55,7 +46,7 @@ class LingBotVAClient:
         self.stage_log_path = os.environ.get("STAGE_LOG") or None
         self.stages = {}
         self.infer_times = []
-        print(f"[LingBotVA] server={self.base_url} 官方三段协议(reset/infer/kv) action_type=ee")
+        print(f"[LingBotVA] server={self.base_url} upstream reset/infer/kv protocol action_type=ee")
 
     def _post(self, path, payload, timeout=900):
         r = requests.post(f"{self.base_url}{path}", json=payload, timeout=timeout)
@@ -76,7 +67,7 @@ class LingBotVAClient:
             self.infer_times.append(float(body["infer_time"]))
         act = np.asarray(body["action"], dtype=np.float64)     # [16, F, S]
         if act.ndim != 3 or act.shape[0] != 16 or not np.isfinite(act).all():
-            raise RuntimeError(f"推理服务返回异常动作 {act.shape}")
+            raise RuntimeError(f"Service returned invalid actions {act.shape}")
         return act
 
     def update_kv(self, frames):

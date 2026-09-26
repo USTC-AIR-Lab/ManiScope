@@ -1250,7 +1250,6 @@ STAMP_SEAL = {
 }
 
 
-
 SHAKE_BOTTLE_HORIZONTALLY = {
     "task_name": "shake_bottle_horizontally",
     "task_description": "Shake the bottle horizontally with proper arm.\
@@ -1421,10 +1420,9 @@ TURN_SWITCH = {
 }
 
 
-
 def get_all_tasks():
     return {
         key: value
         for key, value in globals().items()
-        if key.isupper() and isinstance(value, dict) and value  # value非空dict
+        if key.isupper() and isinstance(value, dict) and value  # The value is a nonempty dictionary.
     }

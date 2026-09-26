@@ -1,18 +1,4 @@
-"""StarVLA 桥接：把 StarVLA 自带的 websocket 策略服务包成和 DM0.5 同款的 HTTP /v1/infer。
-
-在 StarVLA 的 .venv 里跑（需要 PYTHONPATH 指向 StarVLA 仓库，用它的 websocket 客户端）。
-请求/响应契约与 policy/DM05、policy/Pi05 完全一致：
-  POST /v1/infer  {"observation": {"prompt", "images": {"1","2","3"} (b64 PNG, head/left/right), "state": [14]}}
-  -> {"actions": [[14] * chunk], "infer_time": 秒}
-
-逐行复刻官方 examples/simBenchmarks/Robotwin/eval_files/model2robotwin_interface.py：
-  * 三路图 cv2.resize 到 224x224，INTER_AREA
-  * vla_input = {"examples":[{"image":[3 图], "lang": 指令}], "do_sample": False, "use_ddim": True,
-                 "num_ddim_steps": 10, "unnorm_key": "new_embodiment"}
-  * 取 response["data"]["actions"][0] -> (chunk, 14)
-  * **关节重排** [0..5, 12, 6..11, 13]：模型输出 [L6, R6, Lg, Rg]，RoboTwin 要 [L6, Lg, R6, Rg]
-  * 不送 state（该 checkpoint 无状态输入；abs 模式）
-"""
+"""Bridge the upstream StarVLA websocket policy service to HTTP /v1/infer using the configured external repository and websocket client. Preserve observation formatting, reset semantics and action chunking."""
 
 import base64
 import io
@@ -75,7 +61,7 @@ class Handler(BaseHTTPRequestHandler):
             obs = json.loads(raw)["observation"]
             keys = sorted(obs["images"].keys(), key=lambda k: int(k))
             if len(keys) != 3:
-                raise ValueError(f"需要 3 路图 (head,left,right)，收到 {len(keys)}")
+                raise ValueError(f"Expected 3 views (head,left,right), got {len(keys)}")
             imgs = [decode_img(obs["images"][k]) for k in keys]
             vla_input = {
                 "examples": [{"image": imgs, "lang": str(obs.get("prompt", ""))}],
@@ -86,33 +72,33 @@ class Handler(BaseHTTPRequestHandler):
             dt = time.time() - t0
             act = np.asarray(resp["data"]["actions"][0], dtype=np.float64)
             if act.ndim != 2 or act.shape[1] != 14:
-                raise ValueError(f"动作形状异常 {act.shape}")
+                raise ValueError(f"Invalid action shape {act.shape}")
             act = act[:, REORDER]
             Handler.n_calls += 1
             if Handler.n_calls % 50 == 1:
                 log.info("infer #%d %.3fs actions %s", Handler.n_calls, dt, act.shape)
             return self._json(200, {"actions": act.tolist(), "infer_time": dt})
         except Exception as e:  # noqa: BLE001
-            log.exception("infer 失败")
+            log.exception("Inference failed")
             return self._json(500, {"error": str(e)})
 
 
 def main():
-    for i in range(120):                     # 等 websocket 服务把模型加载完
+    for i in range(120):                     # Wait for websocket model loading.
         try:
             Handler.client = WebsocketClientPolicy(WS_HOST, WS_PORT)
             meta = Handler.client.get_server_metadata()
             Handler.chunk = meta.get("action_chunk_size")
-            log.info("已连上 websocket %s:%d  server_meta=%s", WS_HOST, WS_PORT, meta)
+            log.info("Connected websocket %s:%d server_meta=%s", WS_HOST, WS_PORT, meta)
             break
         except Exception as e:  # noqa: BLE001
             if i % 12 == 0:
-                log.info("等 websocket 服务… (%s)", str(e)[:80])
+                log.info("Waiting for websocket service (%s)", str(e)[:80])
             time.sleep(5)
     else:
-        raise SystemExit("websocket 服务 10 分钟没起来")
+        raise SystemExit("Websocket service did not start within 10 minutes")
     srv = HTTPServer(("0.0.0.0", PORT), Handler)
-    log.info("桥接监听 :%d  /v1/infer", PORT)
+    log.info("Bridge listening :%d /v1/infer", PORT)
     srv.serve_forever()
 
 

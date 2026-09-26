@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""按维度分组拼组合泛化场景总览图：每条维度一个色带标题，每格标注序号/场景名/难度。"""
+"""Render a scene overview grouped by task family with numbered task and level labels."""
 import os, glob, argparse, yaml
 from PIL import Image, ImageDraw, ImageFont
 
@@ -18,7 +18,7 @@ def font(sz, bold=False):
     return ImageFont.load_default()
 
 def cjk(sz):
-    # 这台机器只装了 DejaVu，没有 CJK 字体；标题一律用英文，中文说明放 SCENE_GOALS.md
+    # Use English overview labels supported by the selected font.
     return font(sz, True)
 
 def main():
@@ -81,7 +81,7 @@ def main():
             idx += 1
         yoff += ((len(sc) + cols - 1) // cols) * ch
     canvas.save(a.out)
-    print("saved %s (%dx%d), 缺图 %d: %s" % (a.out, W, H, len(miss), miss))
+    print("saved %s (%dx%d), missing %d: %s" % (a.out, W, H, len(miss), miss))
 
 if __name__ == "__main__":
     main()

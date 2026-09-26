@@ -1,4 +1,4 @@
-# 量 move_cup_pad 专家放置后的实际偏差，用来定判据阈值（别拍脑袋）。
+
 import sys, os, yaml, importlib, argparse
 sys.path.append("./"); sys.path.append("./description/utils")
 import numpy as np
@@ -21,7 +21,7 @@ def build_args(task_name, task_config="demo_clean"):
 ap = argparse.ArgumentParser(); ap.add_argument("--n", type=int, default=8); a = ap.parse_args()
 m = importlib.import_module("envs.move_cup_pad"); env = getattr(m, "move_cup_pad")()
 args = build_args("move_cup_pad")
-print("pad half_size = [0.055, 0.03, 0.0005] -> 垫子 11cm x 6cm")
+print("pad half_size = [0.055, 0.03, 0.0005] -> 11cm x 6cm")
 for seed in range(a.n):
     try:
         env.setup_demo(now_ep_num=seed, seed=seed, is_test=True, **args)
@@ -42,6 +42,6 @@ for seed in range(a.n):
     grip = bool(env.robot.is_left_gripper_open() and env.robot.is_right_gripper_open())
     plan = getattr(env, "plan_success", True)
     old = bool(np.all(abs(d) < np.array([0.02, 0.02, 0.01])) and grip)
-    print("seed%d plan=%s grip=%s  dx=%+.3f dy=%+.3f dz=%+.3f  r_xy=%.3f  旧判据=%s"
+    print("seed%d plan=%s grip=%s dx=%+.3f dy=%+.3f dz=%+.3f r_xy=%.3f old_predicate=%s"
           % (seed, plan, grip, d[0], d[1], d[2], float(np.hypot(d[0], d[1])), old))
     env.close_env()

@@ -1,4 +1,4 @@
-# 单场景插桩：跑几个种子，把 GOAL 各分量的实际数值打出来，定位是判据太紧还是专家没做到。
+# Inspect individual goal components and expert placement offsets to diagnose predicate and execution differences.
 import sys, os, argparse
 sys.path.append("./"); sys.path.append("./description/utils")
 import numpy as np

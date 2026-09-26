@@ -1,5 +1,5 @@
-# 不连 policy 的专家冒烟：复刻 eval_policy 的 expert_check(setup_demo+play_once+check_success)+指令生成。
-# 用来在拉 DM0.5 前，验证新组合场景能否过"专家关"(抓取规划/稳定性/指令模板)。
+# Expert-only smoke check reproduces setup_demo, play_once, check_success and instruction generation without a policy service.
+
 import sys, os, yaml, importlib, argparse
 sys.path.append("./"); sys.path.append("./description/utils")
 from envs import CONFIGS_PATH

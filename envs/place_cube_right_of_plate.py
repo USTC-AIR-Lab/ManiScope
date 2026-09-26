@@ -1,7 +1,8 @@
-"""D2-06 · skill x spatial · L2 · 餐桌摆盘
+"""D2-06 · skill x spatial · L2
 
-依赖的 RoboTwin 基础任务: 21 place_a2b_left, 22 place_a2b_right, 28 place_container_plate
-由 suite/table.py 生成，不要直接改这个文件。组合泛化测评专用，不用于训练。
+RoboTwin source-task links: 21 place_a2b_left, 22 place_a2b_right, 28 place_container_plate
+Generated candidate from suite/table.py for evaluation, not training.
+The checked-in release may include reviewed refinements; do not overwrite it blindly.
 """
 from ._compo_scene import CompoScene
 

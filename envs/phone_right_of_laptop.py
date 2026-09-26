@@ -1,9 +1,8 @@
-"""D2-13 · skill x spatial · L2 · 办公桌
+"""D2-13 · skill x spatial · L2
 
-用户提的 open_laptop+放手机。开盖需要关节开度判据(暂无)，先做空间关系版
-
-依赖的 RoboTwin 基础任务: 17 open_laptop, 36 place_phone_stand, 22 place_a2b_right
-由 suite/table.py 生成，不要直接改这个文件。组合泛化测评专用，不用于训练。
+RoboTwin source-task links: 17 open_laptop, 36 place_phone_stand, 22 place_a2b_right
+Generated candidate from suite/table.py for evaluation, not training.
+The checked-in release may include reviewed refinements; do not overwrite it blindly.
 """
 from ._compo_scene import CompoScene
 

@@ -1,14 +1,4 @@
-"""OpenWAM 桥接：把官方 websocket 策略服务（openwam-serve）包成和 DM0.5 同款的 HTTP /v1/infer。
-
-在 OpenWAM 的 .venv 里跑（PYTHONPATH 指向官方仓库根，用它的 benchmarks.utils 客户端与 payload 组装）。
-逐行复刻官方 benchmarks/robotwin/openwam2robotwin_interface.py 的 ModelClient.step()：
-  * 三路图按官方 client.encode_numpy_b64 编码（客户端不做 resize，服务端按 ckpt 配置裁切/拼 L 形多视角）
-  * prompt = format_prompt_for_inference(instruction)（训练时模板前缀）
-  * state = 20 维 eef proprio（由仿真侧插件按官方 robotwin_endpose_to_eef20d 算好后送来）
-  * 指令变化即 reset（官方逻辑）；/v1/reset -> 官方 client.reset()（服务端清 episode 状态与内部动作块）
-  * 服务端内部管理动作分块：每步送一次观测、回一个 20 维动作（xyz+rot6d+grip ×2）
-请求: {"observation": {"prompt", "images": {"1","2","3"}, "state": [20]}} -> {"actions": [[20]], "infer_time": 秒}
-"""
+"""HTTP bridge to the upstream OpenWAM websocket service. Use official observation payloads and client helpers, preserve instruction-change resets, and let the server own action chunk state."""
 
 import base64
 import io
@@ -69,14 +59,14 @@ class Handler(BaseHTTPRequestHandler):
             obs = json.loads(raw)["observation"]
             imgs = {k: decode_img(obs["images"][k]) for k in ("1", "2", "3")}
             instruction = str(obs.get("prompt", ""))
-            if instruction and instruction != Handler.task_description:      # 官方：指令变化即 reset
+            if instruction and instruction != Handler.task_description:      # Match upstream reset-on-instruction-change behavior.
                 r = self.ws.reset()
                 if r.get("type") != transport.RESET_ACK:
                     raise RuntimeError(f"server reset failed: {r}")
                 Handler.task_description = instruction
             state = np.asarray(obs["state"], dtype=np.float32).reshape(-1)
             if state.size != STATE_DIM:
-                raise ValueError(f"state 应为 {STATE_DIM} 维，收到 {state.size}")
+                raise ValueError(f"Expected {STATE_DIM}-dimensional state, got {state.size}")
             payload = client.build_payload(head=client.encode_numpy_b64(imgs["1"]),
                                            left_wrist=client.encode_numpy_b64(imgs["2"]),
                                            right_wrist=client.encode_numpy_b64(imgs["3"]),
@@ -87,13 +77,13 @@ class Handler(BaseHTTPRequestHandler):
             dt = time.time() - t0
             act = np.asarray(resp["action"], dtype=np.float64).reshape(-1)
             if act.size != 20 or not np.isfinite(act).all():
-                raise ValueError(f"动作异常 {act.shape}")
+                raise ValueError(f"Invalid actions {act.shape}")
             Handler.n_calls += 1
             if Handler.n_calls % 200 == 1:
                 log.info("infer #%d %.3fs action %s", Handler.n_calls, dt, act.shape)
             return self._json(200, {"actions": [act.tolist()], "infer_time": dt})
         except Exception as e:  # noqa: BLE001
-            log.exception("infer 失败")
+            log.exception("Inference failed")
             return self._json(500, {"error": str(e)})
 
 
@@ -102,17 +92,17 @@ def main():
     for i in range(180):
         try:
             r = ws.ping()
-            log.info("已连上 %s  ping=%s", WS_URL, str(r)[:120])
+            log.info("Connected %s ping=%s", WS_URL, str(r)[:120])
             break
         except Exception as e:  # noqa: BLE001
             if i % 12 == 0:
-                log.info("等 websocket 服务… (%s)", str(e)[:80])
+                log.info("Waiting for websocket service (%s)", str(e)[:80])
             time.sleep(5)
     else:
-        raise SystemExit("websocket 服务 15 分钟没起来")
+        raise SystemExit("Websocket service did not start within 15 minutes")
     Handler.ws = ws
     srv = HTTPServer(("0.0.0.0", PORT), Handler)
-    log.info("桥接监听 :%d  /v1/infer", PORT)
+    log.info("Bridge listening :%d /v1/infer", PORT)
     srv.serve_forever()
 
 

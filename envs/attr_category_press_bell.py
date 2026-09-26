@@ -1,9 +1,8 @@
-"""D3-10 · attribute binding · L1 · 前台服务
+"""D3-10 · attribute binding · L1
 
-按压型动作上的属性绑定 —— 不涉及抓取，语言信号最干净
-
-依赖的 RoboTwin 基础任务: 6 click_bell, 5 click_alarmclock
-由 suite/table.py 生成，不要直接改这个文件。组合泛化测评专用，不用于训练。
+RoboTwin source-task links: 6 click_bell, 5 click_alarmclock
+Generated candidate from suite/table.py for evaluation, not training.
+The checked-in release may include reviewed refinements; do not overwrite it blindly.
 """
 from ._compo_scene import CompoScene
 

@@ -1,6 +1,5 @@
 #!/bin/bash
 source "$(dirname "${BASH_SOURCE[0]}")/config.sh"
-# 只读进度监控：打印每个场景的实时成功率(成功/已完成条数) + 是否定稿 + 在跑进程数。
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
 printf "%-30s %-10s %s\n" "SCENE" "SUC/DONE" "STATE"
 for L in suite/logs/dm05_*.log; do
@@ -13,4 +12,4 @@ for L in suite/logs/dm05_*.log; do
   printf "%-30s %-10s %s\n" "$sc" "${r:-0/0}" "$st"
 done | sort
 echo "-----"
-echo "eval进程: $(ps -C python -o cmd= 2>/dev/null | grep -c eval_policy)   定稿数: $(find eval_result -name _result.txt 2>/dev/null | wc -l)   $(date '+%H:%M:%S')"
+echo "eval processes: $(ps -C python -o cmd= 2>/dev/null | grep -c eval_policy)   completed results: $(find eval_result -name _result.txt 2>/dev/null | wc -l)   $(date '+%H:%M:%S')"

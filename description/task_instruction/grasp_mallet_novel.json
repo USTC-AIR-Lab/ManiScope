@@ -7,6 +7,5 @@
   "unseen": [
     "Pick up the {A}.",
     "Please pick up the {A}."
-  ],
-  "_note": "D1-05 skill x object L2;判据=lift;由 suite/table.py 生成"
+  ]
 }

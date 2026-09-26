@@ -1,19 +1,12 @@
 # -*- coding: utf-8 -*-
-"""多策略逐场景并排对比（同冻结种子、同指令，可直接横比）。
-
-用法: python3 suite/compare_runs.py formal_dm05_20260911 formal_wla_20260911 [更多 run...]
-读各 run 目录下的 scenes.csv（collect_csv.py 产出），写 suite/EVAL_COMPARE.md：
-  * 总表：每场景各策略成功率 + Wilson 95% CI，以及相对首个策略的差值
-  * 按维度 / 难度的均值汇总
-  * 逐条对齐：同一 seed 上「A 成 B 败 / A 败 B 成 / 都成 / 都败」计数（用 episodes.csv）
-"""
+"""Compare scene CSVs across runs and match episodes by recorded seeds. Shared seed identity alone does not establish equal instructions, interfaces or budgets."""
 import csv, os, sys
 from collections import defaultdict
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 RUNS = sys.argv[1:] or ["formal_dm05_20260911", "formal_wla_20260911"]
-TITLE = {"dm05": "DM0.5", "wla": "WLA", "wla_wrong": "WLA(内部误用)", "wla_formal": "WLA", "pi05": "Pi0.5", "xvla": "X-VLA", "pi0": "pi0", "starvla": "StarVLA", "fastwam": "FastWAM", "ahawam": "AHA-WAM", "eventvla": "EventVLA", "xwam": "X-WAM", "g05": "GalaxeaVLA(G0.5)", "openwam": "OpenWAM-α", "motus": "Motus", "lingbot_va": "LingBot-VA", "gpt6": "GPT-6 Astra(high)", "gemini31pro": "Gemini 3.1 Pro(high)", "claude51": "Claude Fable 5.1(high)", "gemini38flash": "Gemini 3.8 Flash(high)"}
+TITLE = {"dm05": "DM0.5", "wla": "WLA", "wla_wrong": "WLA (excluded internal run)", "wla_formal": "WLA", "pi05": "Pi0.5", "xvla": "X-VLA", "pi0": "pi0", "starvla": "StarVLA", "fastwam": "FastWAM", "ahawam": "AHA-WAM", "eventvla": "EventVLA", "xwam": "X-WAM", "g05": "GalaxeaVLA(G0.5)", "openwam": "OpenWAM-α", "motus": "Motus", "lingbot_va": "LingBot-VA", "gpt6": "GPT-6 Astra(high)", "gemini31pro": "Gemini 3.1 Pro(high)", "claude51": "Claude Fable 5.1(high)", "gemini38flash": "Gemini 3.8 Flash(high)"}
 
 
 def pol_of(run):
@@ -46,21 +39,21 @@ try:
     _PE = _yaml.safe_load(open(os.path.join(HERE, "policies.yaml"), encoding="utf-8"))["policies"]
 except Exception:
     _PE = {}
-src_lines = ["## 各策略开源来源", ""] + [
-    "- **%s**：权重 %s ；代码 %s" % (TITLE.get(q, q), _PE.get(q, {}).get("hf_repo", "—"), _PE.get(q, {}).get("code_repo", "—"))
+src_lines = ["## Model sources", ""] + [
+    "- **%s**: weights %s; code %s" % (TITLE.get(q, q), _PE.get(q, {}).get("hf_repo", "—"), _PE.get(q, {}).get("code_repo", "—"))
     for q in pols] + [""]
 _rest = [q for q in _PE if q not in pols and _PE[q].get("hf_repo")]
 if _rest:
-    src_lines += ["**待评测 / 接入中**（尚未进入本对比表）", ""] + [
-        "- **%s**：权重 %s ；代码 %s" % (TITLE.get(q, q), _PE[q].get("hf_repo", "—"), _PE[q].get("code_repo", "—"))
+    src_lines += ["**Planned / not included in comparison**", ""] + [
+        "- **%s**: weights %s; code %s" % (TITLE.get(q, q), _PE[q].get("hf_repo", "—"), _PE[q].get("code_repo", "—"))
         for q in _rest] + [""]
-o = ["# 组合泛化评测 · 策略并排对比", ""] + src_lines + [
-     "> 同一冻结种子集、同一指令，逐场景 100 条。括号内为 Wilson 95% 置信区间；",
-     "> Δ 为相对 **%s** 的差值（百分点）。" % names[0], "",
-     "对比的 run：" + "、".join("`%s`" % r for r in RUNS), ""]
+o = ["# Evaluation comparison", ""] + src_lines + [
+     "> Per-scene rates use the recorded episode counts. Brackets show 95% Wilson intervals;",
+     "> Delta is relative to **%s** in percentage points." % names[0], "",
+     "Compared runs:" + "、".join("`%s`" % r for r in RUNS), ""]
 
-# 总表
-hdr = "| 维度 | 难度 | 场景 | " + " | ".join(names) + " | " + " | ".join("Δ %s" % n for n in names[1:]) + " |"
+
+hdr = "| Family | Level | Scene | " + " | ".join(names) + " | " + " | ".join("Δ %s" % n for n in names[1:]) + " |"
 o += [hdr, "|" + "---|" * (3 + len(names) + len(names) - 1)]
 dim_acc = defaultdict(lambda: [[] for _ in RUNS]); tier_acc = defaultdict(lambda: [[] for _ in RUNS])
 for sc in scenes:
@@ -79,7 +72,7 @@ for sc in scenes:
         deltas.append("%+.0f" % ((v - vals[0]) * 100) if (v is not None and vals[0] is not None) else "—")
     o.append("| %s | %s | `%s` | %s | %s |" % (base["dim"], base["tier"], sc, " | ".join(cells), " | ".join(deltas)))
 
-# 汇总
+
 def summ(title, acc, keyfmt):
     out = ["", "## %s" % title, "", "| %s | " % title + " | ".join(names) + " |", "|---|" + "---|" * len(names)]
     for k in sorted(acc):
@@ -88,20 +81,20 @@ def summ(title, acc, keyfmt):
             xs = acc[k][i]; row.append("%.3f (n=%d)" % (sum(xs) / len(xs), len(xs)) if xs else "—")
         out.append("| %s | %s |" % (keyfmt(k), " | ".join(row)))
     return out
-o += summ("按维度均值", dim_acc, lambda k: k)
-o += summ("按难度均值", tier_acc, lambda k: "L%s" % k)
+o += summ("Mean by family", dim_acc, lambda k: k)
+o += summ("Mean by level", tier_acc, lambda k: "L%s" % k)
 allm = ["%.3f" % (sum(float(r["success_rate"]) for r in s.values()) / len(s)) if s else "—" for s in S]
-o += ["", "**48 场景总均值**：" + "、".join("%s %s" % (n, m) for n, m in zip(names, allm)), ""]
+o += ["", "**Mean across 48 scenes**:" + "、".join("%s %s" % (n, m) for n, m in zip(names, allm)), ""]
 
-# 逐条对齐（两两，相对首个策略）
+
 for j in range(1, len(RUNS)):
     a, b = E[0], E[j]
     keys = sorted(set(a) & set(b))
     ab = sum(1 for k in keys if a[k] and b[k]); a_only = sum(1 for k in keys if a[k] and not b[k])
     b_only = sum(1 for k in keys if b[k] and not a[k]); nn = sum(1 for k in keys if not a[k] and not b[k])
-    o += ["## 逐条对齐：%s vs %s（共 %d 条同种子 episode）" % (names[0], names[j], len(keys)), "",
-          "| 都成功 | 仅 %s 成功 | 仅 %s 成功 | 都失败 |" % (names[0], names[j]), "|---|---|---|---|",
+    o += ["## Matched episodes: %s vs %s (%d shared seeds)" % (names[0], names[j], len(keys)), "",
+          "| Both succeed | Only %s succeeds | Only %s succeeds | Both fail |" % (names[0], names[j]), "|---|---|---|---|",
           "| %d | %d | %d | %d |" % (ab, a_only, b_only, nn), ""]
 
 open(os.path.join(HERE, "EVAL_COMPARE.md"), "w", encoding="utf-8").write("\n".join(o) + "\n")
-print("写出 suite/EVAL_COMPARE.md：%d 场景 × %d 策略" % (len(scenes), len(RUNS)))
+print("Wrote suite/EVAL_COMPARE.md: %d scenes x %d systems" % (len(scenes), len(RUNS)))

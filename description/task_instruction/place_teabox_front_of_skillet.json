@@ -7,6 +7,5 @@
   "unseen": [
     "Put the {A} in front of the skillet.",
     "Please put the {A} in front of the skillet."
-  ],
-  "_note": "D2-11 skill x spatial L2;判据=rel;由 suite/table.py 生成"
+  ]
 }

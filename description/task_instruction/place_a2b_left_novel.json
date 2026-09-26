@@ -65,6 +65,5 @@
     "Use {a} to place {A} left of {B}.",
     "Set {A} on the left side of {B}",
     "Place {A} to the left of {B} using {a}"
-  ],
-  "_note": "place_a2b_left_novel 复用 place_a2b_left 的模板（占位符相同 {A}{B}{a}）；差异只在物体池。"
+  ]
 }

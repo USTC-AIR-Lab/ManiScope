@@ -1,11 +1,4 @@
-"""X-WAM (sharinka0715/X-WAM-checkpoints robotwin_sft) 的 RoboTwin eval 插件。
-
-官方 evaluation/X-WAM/deploy_policy.py 的原样移植：坐标变换（BASE_COORD_XFORM / EEF_AXES_XFORM）、16 维 eef 状态编码、
-增量动作累加 compute_future_poses、逐步 take_action(action_type="ee") 一字不改；只把 zmq 传输换成本内核统一的
-HTTP /v1/infer（服务端 policy/XWAM/serve.py），并加上本内核统一的中断条件（eval_success / step_lim）与 _latency 记录。
-官方默认：action_length=32（每次执行前 32 步再重推），cfg=0.0，seed = md5(env_rank, rollout_id, step_id)，
-rollout_id = episode 序号（官方 client 传 now_id），step_id = take_action_cnt。
-"""
+"""X-WAM RoboTwin adapter retaining upstream base/EEF coordinate transforms and delta-action accumulation. State and actions use the documented end-effector conventions."""
 
 import base64
 import json
@@ -78,14 +71,12 @@ def compute_future_poses(initial_proprio: np.ndarray, actions: np.ndarray) -> np
     return poses
 
 
-
-
 def _png_b64(rgb):
     return base64.b64encode(cv2.imencode(".png", cv2.cvtColor(np.asarray(rgb), cv2.COLOR_RGB2BGR))[1].tobytes()).decode()
 
 
 def _arm_state(endpose, gripper):
-    """官方 eval() 的单臂状态编码：xyz 换基 + 四元数换基换轴 -> [xyz, wxyz, gripper]"""
+    """Encode one arm: change xyz basis and quaternion basis/axes, then append gripper state."""
     xyz = np.asarray(endpose[:3], np.float64) @ BASE_COORD_XFORM.T
     quat = np.asarray(endpose[3:], np.float64)  # wxyz
     mat = Rotation.from_quat(quat[[1, 2, 3, 0]]).as_matrix()
@@ -95,7 +86,7 @@ def _arm_state(endpose, gripper):
 
 
 def _arm_actions(arm_state, deltas):
-    """官方 eval() 的单臂动作还原：增量累加 -> 逆换基 -> [xyz, wxyz, gripper]"""
+    """Decode one arm: accumulate increments, invert basis transforms, and return xyz/quaternion/gripper."""
     poses = compute_future_poses(arm_state, deltas)
     grip = poses[:, 7:8]
     xyz = poses[:, :3] @ BASE_COORD_XFORM
@@ -112,7 +103,7 @@ class XWAMClient:
         self.action_length = int(action_length)
         self.cfg = float(cfg)
         self.env_rank = int(env_rank)
-        self.rollout_id = -1                     # reset() 时 +1，对应官方 client 的 now_id
+        self.rollout_id = -1                     # Increment on reset to match the official client episode ID.
         self.stage_log_path = os.environ.get("STAGE_LOG") or None
         self.stages = {}
         self.infer_times = []
@@ -134,7 +125,7 @@ class XWAMClient:
             self.infer_times.append(float(body["infer_time"]))
         deltas = np.asarray(body["actions"], dtype=np.float64)   # [Ta, 14]
         if not np.isfinite(deltas).all():
-            raise RuntimeError("推理服务返回 NaN/inf 动作")
+            raise RuntimeError("Service returned NaN/inf actions")
         actions = np.concatenate([_arm_actions(left, deltas[:, 0:7]), _arm_actions(right, deltas[:, 7:14])], axis=1)
         return actions[: min(len(actions), self.action_length)]
 
@@ -159,7 +150,7 @@ class XWAMClient:
         try:
             requests.post(f"{self.base_url}/v1/reset", timeout=5)
         except Exception as exc:  # noqa: BLE001
-            logger.warning("通知推理服务 /v1/reset 失败: %s", exc)
+            logger.warning("Failed to notify inference service /v1/reset: %s", exc)
 
 
 def get_model(usr_args):

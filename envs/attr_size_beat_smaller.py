@@ -1,9 +1,8 @@
-"""D3-13 · attribute binding · L2 · 积木码垛
+"""D3-13 · attribute binding · L2
 
-同色异尺寸，唯一线索是大小
-
-依赖的 RoboTwin 基础任务: 2 beat_block_hammer, 4 blocks_ranking_size
-由 suite/table.py 生成，不要直接改这个文件。组合泛化测评专用，不用于训练。
+RoboTwin source-task links: 2 beat_block_hammer, 4 blocks_ranking_size
+Generated candidate from suite/table.py for evaluation, not training.
+The checked-in release may include reviewed refinements; do not overwrite it blindly.
 """
 from ._compo_scene import CompoScene
 

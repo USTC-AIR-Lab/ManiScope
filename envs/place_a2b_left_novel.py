@@ -1,7 +1,4 @@
-"""组合泛化测试场景（技能 x 空间关系）。
-
-从 place_a2b_left 克隆，**只改物体池**，其余全部保持一致。不用于训练。
-"""
+"""Spatial-composition evaluation with a different object pool from place_a2b_left; source mechanics are retained."""
 import glob
 from ._base_task import Base_Task
 from .utils import *
@@ -33,15 +30,12 @@ class place_a2b_left_novel(Base_Task):
                     continue
             return available_ids
 
-        # 组合泛化 · 技能 x 空间关系：
-        # 「把 A 放到 B 左边」这个技能在训练里见过，但只在下面这 12 个物体上见过：
+        # Spatial-composition evaluation changes the object pool while retaining source task mechanics. Keep variants with complete contact-point pose/group/mask metadata and no overlap with the source object pool.
+
         #   047_mouse 048_stapler 050_bell 057_toycar 073_rubikscube 075_bread
         #   077_phone 081_playingcards 086_woodenblock 112_tea-box 113_coffee-box 107_soap
-        # 这里换成与之**完全不相交**的一组，其余逻辑（生成区、动作、判据）一字不动，
-        # 所以唯一变化的变量就是物体身份 —— 测的是空间关系能否迁移到没见过的物体。
-        # 收窄后的池子：首轮用 10 个物体时专家只有 5/35（14%），失败集中在
-        # 抓取点配置不全的物体上。这里只保留 contact_points_pose/group/mask 三件套
-        # 齐全的物体和变体 —— 仍与原任务的 12 个物体完全不相交，测试性质不变。
+
+
         object_list = ["039_mug", "021_cup", "002_bowl"]
         GOOD_IDS = {"039_mug": [0, 1, 10, 11, 12, 2, 3, 4, 5, 6, 7, 8, 9], "021_cup": [0, 1, 2, 3, 4, 5], "002_bowl": [1, 2, 3, 4, 5, 6, 7]}
 
@@ -54,8 +48,8 @@ class place_a2b_left_novel(Base_Task):
                 rotate_rand=True,
                 rotate_lim=[0, 3.14, 0],
             )
-            # B（参照物）**永远摆在右边**：任务是「把 A 放到 B 的左边」，
-            # 左边才留得下空间。和 place_a2b_right_novel 是镜像的同一处修正。
+            # For left-of placement, keep B on the right to leave destination clearance.
+
             xlim = [0.10, 0.20]
             target_rand_pose = rand_pose(
                 xlim=xlim,

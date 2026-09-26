@@ -1,20 +1,4 @@
-"""公开 WLA (SJTU-DENG-Lab/wla_robotwin_all_image_action) 推理服务：/v1/infer 同 DM0.5 契约 + 额外 history 图。
-
-逐行复刻**公开官方** experiments/robotwin/robotwin_utils.py（WLARoboTwinPolicy）与 run_robotwin_eval.sh 的默认：
-  * 该 checkpoint 官方评测用 CONTROL_MODE=eef、UNNORM_KEY=robotwin_all_eef、状态/动作 16 维
-    （config.json max_state_dim=max_action_dim=16）—— 末端位姿控制，不是关节角
-  * WLA.from_pretrained(model_id, input_size=512 // 32)；整模型 .to(bf16)；sample_actions 在 autocast(bf16) 下
-  * 4 张图 [历史 head(aux 256), 当前 head(primary 256), left(aux 256), right(aux 256)]，to_tensor + resize_with_pad
-  * 状态 16 维 = [左 endpose(7), 左夹爪, 右 endpose(7), 右夹爪] -> normalize_and_pad(norm["observation.state"], 16)
-  * 动作 -> unnormalize_and_unpad(norm["action"], 16) -> 两个四元数归一化 -> (32, 16)，仿真侧 take_action(ee)
-历史帧由适配层（仿真侧）按官方 eval_step 的索引抓取后随请求送来（images["0"]），首次没有就用当前 head。
-
-请求: {"observation": {"prompt", "images": {"0": 历史head(b64png, 可选), "1": head, "2": left, "3": right}, "state": [14]}}
-响应: {"actions": [[14] * 32], "infer_time": 秒}
-
-用官方仓库的 .venv 跑，PYTHONPATH 指向官方仓库根：
-  WLA_ROOT=... WLA_MODEL_ID=... PORT=7980 CUDA_VISIBLE_DEVICES=g python serve.py
-"""
+"""Public WLA HTTP inference service following WLARoboTwinPolicy. Preserve configured observation history, public action/state normalization, action chunking and enabled inference modules; do not substitute an internal training checkpoint."""
 
 import base64
 import io
@@ -56,18 +40,18 @@ class Policy:
         with open(NORM_FILE, "r", encoding="utf-8") as f:
             ns = json.load(f)
         if UNNORM_KEY not in ns:
-            raise KeyError(f"norm_stats 里没有 {UNNORM_KEY}，有: {sorted(ns)}")
+            raise KeyError(f"norm_stats has no {UNNORM_KEY}; available keys: {sorted(ns)}")
         self.norm_stats = ns[UNNORM_KEY]
         t0 = time.time()
         self.model = WLA.from_pretrained(MODEL_ID, input_size=TARGET_IMAGE_SIZE // VAE_F)
         self.history_obs_step = int(getattr(self.model.config, "history_obs_step", 8))
         self.chunk = int(getattr(self.model.config, "chunk_size", 32))
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.model = self.model.to(device=device, dtype=DTYPE)      # 官方：整模型一个 dtype
+        self.model = self.model.to(device=device, dtype=DTYPE)      # Use one dtype for the full model, matching upstream.
         self.model.eval()
         self.primary_tf = _make_transform(PRIMARY)
         self.aux_tf = _make_transform(AUX)
-        log.info("模型加载 %.1fs  model=%s  history_obs_step=%d chunk=%d unnorm=%s dims=%d/%d",
+        log.info("Model loaded %.1fs model=%s history_obs_step=%d chunk=%d unnorm=%s dims=%d/%d",
                  time.time() - t0, MODEL_ID, self.history_obs_step, self.chunk, UNNORM_KEY, MAX_STATE_DIM, ACTION_DIM)
 
     @torch.inference_mode()
@@ -82,7 +66,7 @@ class Policy:
             actions = self.model.sample_actions(caption=instruction, input_images=input_images,
                                                 num_images_per_prompt=1, states=states)
         actions = unnormalize_and_unpad(torch.as_tensor(actions), self.norm_stats["action"], ACTION_DIM)
-        if ACTION_DIM == 16:                                       # 官方 eef 后处理：两个四元数归一化
+        if ACTION_DIM == 16:                                       # Normalize both end-effector quaternions, matching upstream postprocessing.
             lq, rq = actions[:, 3:7], actions[:, 11:15]
             actions = torch.cat([actions[:, :3], lq / torch.linalg.norm(lq, dim=1, keepdim=True),
                                  actions[:, 7:11], rq / torch.linalg.norm(rq, dim=1, keepdim=True),
@@ -127,18 +111,18 @@ class Handler(BaseHTTPRequestHandler):
             hist = decode_img(imgs["0"]) if imgs.get("0") else head
             state = np.asarray(obs["state"], dtype=np.float32)
             if state.shape != (MAX_STATE_DIM,):
-                raise ValueError(f"state 应为 {MAX_STATE_DIM} 维，收到 {state.shape}")
+                raise ValueError(f"Expected {MAX_STATE_DIM}-dimensional state, got {state.shape}")
             t0 = time.time()
             act = self.policy.infer(hist, head, left, right, state, str(obs.get("prompt", "")))
             dt = time.time() - t0
             if act.ndim != 2 or act.shape[1] != ACTION_DIM or not np.isfinite(act).all():
-                raise ValueError(f"动作异常 shape={act.shape}")
+                raise ValueError(f"Invalid action shape={act.shape}")
             Handler.n_calls += 1
             if Handler.n_calls % 50 == 1:
                 log.info("infer #%d %.3fs actions %s", Handler.n_calls, dt, act.shape)
             return self._json(200, {"actions": act.tolist(), "infer_time": dt})
         except Exception as e:  # noqa: BLE001
-            log.exception("infer 失败")
+            log.exception("Inference failed")
             return self._json(500, {"error": str(e)})
 
 
@@ -147,9 +131,9 @@ def main():
     z = np.zeros((240, 320, 3), np.uint8)
     t0 = time.time()
     Handler.policy.infer(z, z, z, z, np.zeros(MAX_STATE_DIM, np.float32), "warmup")
-    log.info("预热完成 %.1fs", time.time() - t0)
+    log.info("Warmup complete %.1fs", time.time() - t0)
     srv = HTTPServer(("0.0.0.0", PORT), Handler)
-    log.info("监听 :%d  /v1/infer", PORT)
+    log.info("Listening :%d /v1/infer", PORT)
     srv.serve_forever()
 
 

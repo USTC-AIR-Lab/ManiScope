@@ -2,7 +2,7 @@
 
 From the frozen manifest; exact instruction pools live in `description/task_instruction/`.
 
-## D1 — 训练过的技能迁到没见过的物体
+## D1 — Skill-object generalization
 
 - `grab_dumbbell` — L1; generated; criterion: lift
 - `move_can_coaster` — L1; generated; criterion: on
@@ -15,7 +15,7 @@ From the frozen manifest; exact instruction pools live in `description/task_inst
 - `place_teabox_stand` — L2; generated; criterion: on
 - `place_toycar_plasticbox` — L2; generated; criterion: in
 
-## D2 — 空间关系迁到没见过的物体对 / 没训练过的关系词
+## D2 — Spatial-relation generalization
 
 - `place_a2b_left_novel` — L1; handwritten; criterion: handwritten
 - `place_a2b_right_novel` — L1; handwritten; criterion: handwritten
@@ -27,7 +27,7 @@ From the frozen manifest; exact instruction pools live in `description/task_inst
 - `put_toycar_left_basket` — L2; generated; criterion: in
 - `place_between_bowls` — L3; generated; criterion: between
 
-## D3 — 必须解析属性词才能在干扰物中选对（5 类属性 × 4 类动作）
+## D3 — Attribute-based target selection
 
 - `attr_bind_bottle` — L1; handwritten; criterion: handwritten
 - `attr_category_press_bell` — L1; generated; criterion: press
@@ -39,7 +39,7 @@ From the frozen manifest; exact instruction pools live in `description/task_inst
 - `attr_bind_soap_box` — L3; handwritten; criterion: handwritten
 - `attr_size_rank_middle` — L3; generated; criterion: lift
 
-## D4 — 必须解析指代结构才能锁定目标（嵌套/序位/序数/邻接/否定）
+## D4 — Referring-expression resolution
 
 - `ref_block_on_plate` — L1; generated; criterion: lift
 - `ref_block_behind_can` — L2; generated; criterion: lift
@@ -49,7 +49,7 @@ From the frozen manifest; exact instruction pools live in `description/task_inst
 - `ref_not_the_red_one` — L2; generated; criterion: lift
 - `ref_second_from_left` — L2; generated; criterion: lift
 
-## D5 — 两个训练过的技能串联，训练里从未融合，顺序有真实依赖
+## D5 — Ordered skill composition
 
 - `adjust_bottle_dustbin` — L2; handwritten; criterion: handwritten
 - `click_bell_press_stapler` — L2; handwritten; criterion: handwritten
@@ -58,7 +58,7 @@ From the frozen manifest; exact instruction pools live in `description/task_inst
 - `lift_pot_to_pad` — L3; generated; criterion: dual_carry_to
 - `pack_toycar_then_ring` — L3; generated; criterion: seq
 
-## D7 — 两条以上维度叠加，复合深度阶梯
+## D7 — Mixed task requirements
 
 - `move_cup_pad_mix` — L2; generated; criterion: on
 - `ref_block_on_plate_mix` — L2; generated; criterion: lift

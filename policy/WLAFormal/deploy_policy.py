@@ -1,15 +1,4 @@
-"""公开 WLA (SJTU-DENG-Lab/wla_robotwin_all_image_action) 的 RoboTwin eval 插件。
-
-瘦 HTTP 客户端（同 DM05/Pi05 契约），服务端是 policy/WLAFormal/serve.py。与官方
-experiments/robotwin/robotwin_utils.py 的 eval_step 逐行对齐，只多了本内核统一的中断条件：
-
-  * **公开官方对该 checkpoint 用 eef 控制**（run_robotwin_eval.sh: CONTROL_MODE=eef, UNNORM_KEY=robotwin_all_eef, 16 维）：
-    状态 = [左 endpose(7), 左夹爪, 右 endpose(7), 右夹爪]（obs["endpose"]），动作 (32, 16) 走 take_action(action_type="ee")
-  * 每次 eval(): 当前观测 + 上一 chunk 抓的历史 head 帧 -> 推理；逐个 take_action(ee)，每步 get_obs()；
-    执行到第 target = max(len-8-1, 0) 步时把该观测存为下一次的历史帧
-    （官方逻辑：history_obs_step=8，历史帧是上一 chunk 倒数第 9 步的观测；首次推理没有历史就用当前帧）
-  * 与 DM05/Pi05 一致：eval_success / step_lim 时中断；NaN/inf 报错；record_stage 落盘；infer_times 记服务端耗时
-"""
+"""Public WLA RoboTwin HTTP adapter using policy/WLAFormal/serve.py. Preserve the upstream EEF state/action convention, quaternion postprocessing and head-camera history selection."""
 
 import base64
 import json
@@ -37,7 +26,7 @@ class WLAFormalClient:
         self.action_horizon = int(action_horizon)
         self.history_obs_step = int(history_obs_step)
         self.control_mode = control_mode
-        self.history_head = None          # 上一 chunk 抓到的历史 head 帧（RGB ndarray）
+        self.history_head = None          # Use the previous chunk head-camera history at step max(len-8-1, 0), matching the upstream EEF observation branch.
         self.stage_log_path = os.environ.get("STAGE_LOG") or None
         self.stages = {}
         self.infer_times = []
@@ -49,7 +38,7 @@ class WLAFormalClient:
         images = {str(i + 1): _png_b64(o[_CAM.get(c, c.replace("_rgb", ""))]["rgb"]) for i, c in enumerate(self.use_cameras)}
         if self.history_head is not None:
             images["0"] = _png_b64(self.history_head)
-        if self.control_mode == "eef":       # 官方 _encode_obs 的 eef 分支
+        if self.control_mode == "eef":
             ep = observation["endpose"]
             state = np.concatenate([np.asarray(ep["left_endpose"], np.float32).reshape(-1), np.asarray(ep["left_gripper"], np.float32).reshape(-1),
                                     np.asarray(ep["right_endpose"], np.float32).reshape(-1), np.asarray(ep["right_gripper"], np.float32).reshape(-1)])
@@ -66,7 +55,7 @@ class WLAFormalClient:
         if self.action_horizon > 0 and len(chunk) > self.action_horizon:
             chunk = chunk[: self.action_horizon]
         if not np.isfinite(chunk).all():
-            raise RuntimeError("推理服务返回 NaN/inf 动作")
+            raise RuntimeError("Service returned NaN/inf actions")
         return chunk
 
     def record_stage(self, TASK_ENV):
@@ -90,7 +79,7 @@ class WLAFormalClient:
         try:
             requests.post(f"{self.base_url}/v1/reset", timeout=5)
         except Exception as exc:  # noqa: BLE001
-            logger.warning("通知推理服务 /v1/reset 失败: %s", exc)
+            logger.warning("Failed to notify inference service /v1/reset: %s", exc)
 
 
 def get_model(usr_args):
@@ -111,7 +100,7 @@ def eval(TASK_ENV, model, observation):
         bridge()
     instruction = TASK_ENV.get_instruction()
     actions = model.get_action(instruction, observation)
-    # 官方 eval_step：历史帧取本 chunk 第 max(len-8-1, 0) 步执行后的观测
+
     target_history_index = max(len(actions) - model.history_obs_step - 1, 0)
     last_obs = observation
     for index, action in enumerate(actions):

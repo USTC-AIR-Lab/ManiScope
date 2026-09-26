@@ -1,17 +1,4 @@
-"""StarVLA (StarVLA/Qwen3-VL-OFT-RoboTwin2-All) 的 RoboTwin eval 插件——与 Pi05 插件同构（DM05 型 /v1/infer 瘦客户端），服务端是 policy/StarVLA/bridge.py。
-
-单内核契约：script/eval_policy.py 通过 policy/<name>/ 找 get_model()/eval()/reset_model()。
-和 policy/DM05/deploy_policy.py **逐行对齐**——两者走的是同一套 openpi `/v1/infer` JSON 协议
-（见 DM05 插件里 api_style="v1" 的注释：「Pi0/DM0 这类」），所以这里只是换了服务端和 chunk 长度。
-行为保持一致是为了让跨策略成绩可比：eval() 里按 step_lim / eval_success 中断、
-组合场景在阶段交接处调 maybe_bridge_to_stage2()、NaN/inf 动作直接报错、record_stage() 落盘。
-
-checkpoint 要点（来自 motus-robotics/pi0.5_robotwin2 的 README 与 norm_stats）:
-  * pi0.5 base 在 RoboTwin 2.0 全 50 任务上微调（clean 50/任务 + randomized 500/任务）
-  * Pi0Config(pi05=True, action_horizon=50) —— 所以 chunk 是 32，不是 DM0.5 的 50
-  * norm_stats 的 state / actions 均为 14 维 = aloha-agilex 双臂 6 关节 + 2 夹爪
-  * 输出绝对 qpos，不走 relative/delta
-"""
+"""StarVLA RoboTwin HTTP adapter using policy/StarVLA/bridge.py. Implements get_model/eval/reset_model, preserves upstream camera/instruction inputs and executes configured joint-action chunks."""
 
 import base64
 import json
@@ -24,7 +11,7 @@ import requests
 
 logger = logging.getLogger(__name__)
 
-# eval_policy.py 的 encode_obs 用 RoboTwin 相机名
+# Use RoboTwin camera names. Record server-reported inference duration per episode in _latency.txt.
 _CAM_SOURCE = {
     "head_camera_rgb": "head_camera",
     "front_camera_rgb": "front_camera",
@@ -37,18 +24,18 @@ class StarVLAClient:
     def __init__(self, base_url, use_cameras, action_horizon=50,
                  action_mode="absolute", api_style="v1", sampling=None):
         self.base_url = base_url.rstrip("/")
-        assert api_style == "v1", "Pi0.5 服务只提供 /v1/infer"
+        assert api_style == "v1", "Pi0.5 service only supports /v1/infer"
         self.api_style = api_style
         self.server_url = f"{self.base_url}/v1/infer"
         self.use_cameras = list(use_cameras)
         self.action_horizon = int(action_horizon)
         assert action_mode in ("absolute", "relative", "delta"), \
-            "action_mode 只支持 absolute / relative / delta"
+            "action_mode must be absolute, relative or delta"
         self.action_mode = action_mode
         self.sampling = dict(sampling or {})
         self.stage_log_path = os.environ.get("STAGE_LOG") or None
         self.stages = {}
-        # 服务端返回的纯模型推理耗时；内核（打过延迟补丁后）每条 episode 清空并落盘到 _latency.txt
+
         self.infer_times = []
         print(f"[StarVLA] server={self.server_url} cameras={self.use_cameras} "
               f"horizon={self.action_horizon} mode={self.action_mode}"
@@ -69,7 +56,7 @@ class StarVLAClient:
         body = ret.json()
         raw = body.get("actions")
         if raw is None:
-            raise RuntimeError("v1 推理服务返回缺少 actions")
+            raise RuntimeError("v1 service response missing actions")
         if "infer_time" in body:
             self.infer_times.append(float(body["infer_time"]))
         return raw
@@ -82,7 +69,7 @@ class StarVLAClient:
         if self.action_horizon > 0 and len(chunk) > self.action_horizon:
             chunk = chunk[: self.action_horizon]
         if not np.isfinite(chunk).all():
-            raise RuntimeError("推理服务返回 NaN/inf 动作 —— 多半是 checkpoint 坏了，换一个")
+            raise RuntimeError("Service returned NaN/inf actions; verify the checkpoint and inference configuration")
         return chunk
 
     @staticmethod
@@ -119,11 +106,11 @@ class StarVLAClient:
         try:
             requests.post(f"{self.base_url}/v1/reset", timeout=5)
         except Exception as exc:
-            logger.warning("通知推理服务 /v1/reset 失败: %s", exc)
+            logger.warning("Failed to notify inference service /v1/reset: %s", exc)
 
 
 # --------------------------------------------------------------------------- #
-# RoboTwin 单内核接口
+# RoboTwin single-evaluator interface.
 # --------------------------------------------------------------------------- #
 def encode_obs(observation, use_cameras):
     imgs = []

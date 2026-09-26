@@ -1,7 +1,8 @@
-"""D1-08 · skill x object · L2 · 厨房备餐
+"""D1-08 · skill x object · L2
 
-依赖的 RoboTwin 基础任务: 49 stamp_seal, 30 place_empty_cup
-由 suite/table.py 生成，不要直接改这个文件。组合泛化测评专用，不用于训练。
+RoboTwin source-task links: 49 stamp_seal, 30 place_empty_cup
+Generated candidate from suite/table.py for evaluation, not training.
+The checked-in release may include reviewed refinements; do not overwrite it blindly.
 """
 from ._compo_scene import CompoScene
 

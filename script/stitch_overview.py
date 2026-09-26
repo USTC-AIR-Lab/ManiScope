@@ -1,4 +1,4 @@
-# 取每个任务一张代表图(默认 ep00)拼成总览大图，带序号+任务名标注。
+# Build a numbered task overview from one representative frame per task (episode 0 by default).
 import os, glob, argparse
 from PIL import Image, ImageDraw, ImageFont
 
@@ -26,7 +26,7 @@ def main():
     ap.add_argument("--cols", type=int, default=5)
     ap.add_argument("--tile_w", type=int, default=400)
     ap.add_argument("--ep", type=int, default=0)
-    ap.add_argument("--tasks", default="", help="逗号分隔的任务名；留空用默认 50")
+    ap.add_argument("--tasks", default="", help="Comma-separated task names; empty selects the default 50")
     ap.add_argument("--title", default="")
     a = ap.parse_args()
 
@@ -59,7 +59,7 @@ def main():
             dr.text((x0+pad+10,y0+pad+lab+tile_h//2), "(no image)", fill=(150,0,0), font=fsmall)
         dr.text((x0+pad, y0+pad), f"{idx+1:02d}. {t}", fill=(20,20,20), font=font)
     canvas.save(a.out)
-    print(f"saved {a.out}  ({W}x{H}), 缺失 {len(miss)}: {miss}")
+    print(f"saved {a.out}  ({W}x{H}), missing {len(miss)}: {miss}")
 
 if __name__ == "__main__":
     main()

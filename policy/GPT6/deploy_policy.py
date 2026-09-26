@@ -38,14 +38,14 @@ class GPT6Client:
         self.calls = 0
         self.feedback = None
         self.infer_times = []
-        # 大模型 agent 计时账本（每条 episode 一条，每次调用后覆盖写 _agent_timing.jsonl）：
-        # API 次数/响应时间/token、执行（规划+仿真）时间、episode 墙钟、终止原因
+        # Rewrite the per-episode JSONL timing ledger after each call: API calls/time/tokens, execution time, wall time and termination reason.
+
         self.timing_dir = Path(str(args.get("eval_output_dir") or "")) if args.get("eval_output_dir") else None
         self.timing = {}
         self.cur = None
 
     def request(self, route, payload):
-        """桥接/网关偶发超时或 5xx：重试 3 次；仍失败则返回 rejected（本步跳过，不让整场崩），连续 5 次失败才 finish。"""
+        """Retry transient bridge timeouts/5xx up to three times. Return rejected on an exhausted call; finish after five consecutive failures."""
         last = None
         for attempt in range(3):
             try:
@@ -67,7 +67,7 @@ class GPT6Client:
 
 
 def _flush_timing(model, TASK_ENV, termination):
-    """每次调用后覆盖写本条 episode 的计时账本（JSONL，每条 episode 一行）。"""
+    """Rewrite the JSONL timing ledger after each call, retaining one row per episode."""
     c = model.cur
     if c is None:
         return
@@ -98,7 +98,7 @@ def reset_model(model):
 
 
 def eval(TASK_ENV, model, observation):
-    if getattr(TASK_ENV, '_soft_eval_episode', None) != TASK_ENV.test_num:   # 正式多条评测：每条 episode 各自计时
+    if getattr(TASK_ENV, '_soft_eval_episode', None) != TASK_ENV.test_num:
         TASK_ENV._soft_eval_episode = TASK_ENV.test_num
         TASK_ENV._soft_eval_deadline = time.monotonic() + 3300
     if time.monotonic() >= TASK_ENV._soft_eval_deadline:

@@ -56,7 +56,7 @@ Launcher: `suite/launch/start_starvla.sh`.
 ## fastwam
 
 Upstream code: https://github.com/yuantianyuan01/FastWAM
-Weights: https://huggingface.co/yuanty/fastwam（RoboTwin ckpt: robotwin_uncond_3cam_384.pt；LeRobot 版 https://huggingface.co/lerobot/fastwam_robotwin_uncond_3cam_384）
+Weights: https://huggingface.co/yuanty/fastwam (RoboTwin checkpoint: robotwin_uncond_3cam_384.pt; LeRobot version https://huggingface.co/lerobot/fastwam_robotwin_uncond_3cam_384)
 
 Required path variables: `DIFFSYNTH_MODEL_BASE_PATH`, `FASTWAM_CKPT`, `FASTWAM_ROOT`, `FASTWAM_STATS`.
 Launcher: `suite/launch/start_fastwam.sh`.

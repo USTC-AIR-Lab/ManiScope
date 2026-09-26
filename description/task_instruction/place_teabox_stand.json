@@ -7,6 +7,5 @@
   "unseen": [
     "Put the {A} on the display stand.",
     "Please put the {A} on the display stand."
-  ],
-  "_note": "D1-12 skill x object L2;判据=on;由 suite/table.py 生成"
+  ]
 }

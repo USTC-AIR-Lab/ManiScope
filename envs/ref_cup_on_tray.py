@@ -1,7 +1,8 @@
-"""D4-08 · instruction structure · L2 · 快餐取餐
+"""D4-08 · instruction structure · L2
 
-依赖的 RoboTwin 基础任务: 25 place_burger_fries
-由 suite/table.py 生成，不要直接改这个文件。组合泛化测评专用，不用于训练。
+RoboTwin source-task links: 25 place_burger_fries
+Generated candidate from suite/table.py for evaluation, not training.
+The checked-in release may include reviewed refinements; do not overwrite it blindly.
 """
 from ._compo_scene import CompoScene
 
