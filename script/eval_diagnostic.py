@@ -330,6 +330,13 @@ def eval_policy(task_name,
                     % (task_name, len(frozen_seeds), test_num, task_name))
             frozen_seeds = frozen_seeds[:test_num]
             print("[frozen] %s uses %d frozen seeds (no expert seed search)" % (task_name, len(frozen_seeds)))
+        elif os.path.exists("protocol.lock.json"):
+            import json as _json
+            if "suite/seeds/%s.json" % task_name in _json.load(open("protocol.lock.json", encoding="utf-8")).get("sha256", {}):
+                raise RuntimeError(
+                    "%s is a formal scene but suite/seeds/%s.json is absent: the formal seed lists are held by the "
+                    "organizers. Generate development seeds with suite/gen_seeds.py (see suite/seeds/README.md)."
+                    % (task_name, task_name))
 
     expert_attempts = 0
     expert_attempt_limit = int(os.environ.get("ROBOTWIN_MAX_EXPERT_SEED_ATTEMPTS", "100"))

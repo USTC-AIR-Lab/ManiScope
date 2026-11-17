@@ -18,7 +18,7 @@ from policy.GPT6.deploy_policy import eval as policy_eval, get_model
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", required=True)
-    parser.add_argument("--seed", type=int, default=100000)
+    parser.add_argument("--seed", type=int, default=300000)
     parser.add_argument("--mock-bridge-url")
     parser.add_argument("--bridge-token-file")
     args = parser.parse_args()

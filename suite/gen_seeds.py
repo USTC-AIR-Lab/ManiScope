@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
-"""Generate fixed expert-solvable seed files for a reviewed scene version. Expert filtering depends on scene code and predicates, so matching search starting points does not ensure matching initial states. Save accepted seeds and initial-state summaries. Run under the configured simulator environment."""
+"""Generate fixed expert-solvable seed files for a reviewed scene version. Expert filtering depends on scene code and predicates, so matching search starting points does not ensure matching initial states. Save accepted seeds and initial-state summaries. Run under the configured simulator environment.
+
+Usage: python suite/gen_seeds.py <scene> [count=100] [seed_start=300000] [max_tries=4000]
+The formal seed lists are held by the organizers; development seed files must not be reported as formal results."""
 import sys, os, json
 sys.path.append("./"); sys.path.append("./description/utils")
 import numpy as np
@@ -8,7 +11,7 @@ from suite.diag.expert_smoke import class_decorator, build_args
 
 name = sys.argv[1]
 want = int(sys.argv[2]) if len(sys.argv) > 2 else 100
-seed0 = int(sys.argv[3]) if len(sys.argv) > 3 else 100000
+seed0 = int(sys.argv[3]) if len(sys.argv) > 3 else 300000
 maxtry = int(sys.argv[4]) if len(sys.argv) > 4 else 4000
 
 out = "suite/seeds/%s.json" % name

@@ -20,7 +20,8 @@ def validate(root=ROOT):
     if len(tasks) != 48 or len(set(tasks)) != 48: errors.append("formal48 requires 48 unique scenes")
     step_limits = yaml.safe_load((root / "task_config/_eval_step_limit.yml").read_text())
     for task in tasks:
-        for folder, suffix in [("envs", ".py"), ("description/task_instruction", ".json"), ("suite/seeds", ".json")]:
+        # Formal seed lists are held by the organizers; a seed file is checked only when present.
+        for folder, suffix in [("envs", ".py"), ("description/task_instruction", ".json")]:
             if not (root / folder / (task + suffix)).is_file(): errors.append(f"missing {folder}/{task}{suffix}")
         if task not in step_limits: errors.append(f"missing step limit: {task}")
         p = root / "suite/seeds" / (task + ".json")
@@ -72,6 +73,7 @@ def validate(root=ROOT):
     if lock.is_file():
         for f, expected in json.loads(lock.read_text())["sha256"].items():
             p = root / f
+            if f.startswith("suite/seeds/") and not p.is_file(): continue
             if not p.is_file() or hashlib.sha256(p.read_bytes()).hexdigest() != expected: errors.append(f"frozen protocol changed: {f}")
     else: errors.append("missing protocol.lock.json")
     return errors, {"scenes": len(tasks), "policies": len(policies), "checked_files": len(files)}

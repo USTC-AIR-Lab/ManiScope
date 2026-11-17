@@ -30,7 +30,8 @@ def test_missing_or_insufficient_seeds_are_rejected(tmp_path):
 def test_all_formal_inputs_pass_preflight():
     s = yaml.safe_load((ROOT/'suite/scenes_v2.yaml').read_text())
     tasks=[v['name'] for a in s['axes'].values() for v in a['scenes']]
-    assert load('preflight').validate(tasks,100,'demo_clean') == []
+    frozen = any((ROOT/'suite/seeds').glob('*.json'))
+    assert load('preflight').validate(tasks,100,'demo_clean',frozen=frozen) == []
 
 def test_frozen_manifest_export_is_non_destructive(tmp_path):
     source = ROOT/'suite/scenes_v2.yaml'; before = source.read_bytes()

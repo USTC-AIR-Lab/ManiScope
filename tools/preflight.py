@@ -22,7 +22,8 @@ def validate(tasks, episodes, task_config, frozen=True, root=ROOT):
         if frozen:
             p = root / "suite/seeds" / (task + ".json")
             if not p.is_file():
-                errors.append(f"{task}: missing frozen seeds")
+                errors.append(f"{task}: missing frozen seeds (formal seed lists are held by the organizers; "
+                              "generate development seeds with suite/gen_seeds.py)")
             else:
                 data = json.loads(p.read_text())
                 if len(data.get("seeds", [])) < episodes:

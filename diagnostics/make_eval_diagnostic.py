@@ -27,7 +27,8 @@ anchor_step = "            eval_func(TASK_ENV, model, observation)\n"
 anchor_log = "        # Record minimum contact distance, which a binary success flag does not expose.\n"
 anchor_seed_check = "            if len(frozen_seeds) < test_num:\n"
 anchor_seed_slice = "            frozen_seeds = frozen_seeds[:test_num]\n"
-for a in (anchor_instr, anchor_step, anchor_log, anchor_seed_check, anchor_seed_slice):
+anchor_frozen_msg = ('            print("[frozen] %s uses %d frozen seeds (no expert seed search)" % (task_name, len(frozen_seeds)))\n')
+for a in (anchor_instr, anchor_step, anchor_log, anchor_seed_check, anchor_seed_slice, anchor_frozen_msg):
     assert src.count(a) == 1, a
 # With frozen seeds and an injected instruction, the expert replay only fills instruction
 # placeholders that are then overwritten, so it is skipped.
@@ -42,6 +43,16 @@ src = src.replace(anchor_expert, '    expert_check = not (os.environ.get("PROBE_
 src = src.replace(anchor_info, '        if expert_check:\n    ' + anchor_info)
 src = src.replace(anchor_desc, '        if expert_check:\n' + "".join("    " + l + "\n" for l in anchor_desc.splitlines())
                   + '        else:\n            instruction = os.environ["PROBE_INSTRUCTION"]\n')
+# Formal seed lists are held by the organizers: refuse a formal scene without a seed file instead of
+# falling back to the expert seed search.
+src = src.replace(anchor_frozen_msg, anchor_frozen_msg +
+                  '        elif os.path.exists("protocol.lock.json"):\n'
+                  '            import json as _json\n'
+                  '            if "suite/seeds/%s.json" % task_name in _json.load(open("protocol.lock.json", encoding="utf-8")).get("sha256", {}):\n'
+                  '                raise RuntimeError(\n'
+                  '                    "%s is a formal scene but suite/seeds/%s.json is absent: the formal seed lists are held by the "\n'
+                  '                    "organizers. Generate development seeds with suite/gen_seeds.py (see suite/seeds/README.md)."\n'
+                  '                    % (task_name, task_name))\n')
 src = src.replace(anchor_seed_check,
                   '            _probe_off = int(os.environ.get("PROBE_SEED_OFFSET", "0"))\n'
                   '            frozen_seeds = frozen_seeds[_probe_off:]\n' + anchor_seed_check)

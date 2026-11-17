@@ -47,3 +47,4 @@ id_rsa*
 id_ed25519*
 *token*.txt
 /validation-local.json
+/suite/seeds/*.json

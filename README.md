@@ -27,6 +27,8 @@ python3 -m pytest -q tests
 cp configs/local.env.example configs/local.env
 # Edit configs/local.env for your machine and selected backend.
 python3 tools/link_assets.py /absolute/path/to/robotwin_assets
+# Formal seed lists are held by the organizers; generate development seeds (suite/seeds/README.md):
+python suite/gen_seeds.py move_can_coaster 100
 # Validate inputs without starting a simulation or model:
 DRY_RUN=1 bash suite/run_suite.sh dm05 move_can_coaster
 # After installing opendm and setting DM05_MODEL, OPENDM_DIR, OPENDM_ENV:
@@ -43,7 +45,9 @@ results.
 
 - Runner default: 50 episodes per scene, `demo_clean`, unseen instructions. The reported policy results use
   all 100 frozen initial states per scene (`EPISODES=100`); agents use the first 5.
-- Frozen seeds are used in file order; requesting more seeds than available fails early.
+- Frozen seeds are used in file order; requesting more seeds than available fails early. The formal seed
+  lists are held by the organizers (digests in `protocol.lock.json`); a formal scene without a seed file
+  is refused. Use `suite/gen_seeds.py` for development seeds, whose results are not leaderboard results.
 - Each seed determines the instruction sampling. Actual instructions are recorded.
 - The first 10 evaluated seeds are eligible for head-camera video, independent of outcome.
   Set `ROBOTWIN_VIDEO_FIRST_N`; `MAX_SUCC_VIDEOS`/`MAX_FAIL_VIDEOS` are additional caps.
@@ -79,7 +83,7 @@ tables. Create the instrumented evaluator once with `python3 diagnostics/make_ev
 
 - `envs/`: RoboTwin environments, common composition engine, and vendored cuRobo.
 - `description/`: object descriptions and task instruction pools (regular files, no external links).
-- `suite/scenes_v2.yaml`, `suite/seeds/`: formal membership and reproducible episode seeds.
+- `suite/scenes_v2.yaml`: formal membership; `suite/seeds/`: development seed files (formal lists are held by the organizers).
 - `suite/policies.yaml`, `policy/`: public model registrations and adapters.
 - `suite/run_suite.sh`: sequential evaluation; parallel/retry wrappers are also included.
 - `diagnostics/`: language-following diagnostics, model-access probes and example remedies.

@@ -1,8 +1,10 @@
 # Language-following diagnostics
 
 These scripts test whether a policy's choices follow the instruction, not only whether it completes the task.
-They run on any checkpoint registered in `suite/policies.yaml` with the same evaluator, frozen initial states
-and server contract as the formal benchmark. The two model-access probes in `probes/` need access to the
+They run on any checkpoint registered in `suite/policies.yaml` with the same evaluator, seed-file format
+and server contract as the formal benchmark. The paper's numbers use the organizers' formal seed lists;
+with development seeds from `suite/gen_seeds.py` (see `suite/seeds/README.md`) the same diagnostics run on
+other initial states. The two model-access probes in `probes/` need access to the
 model internals and are implemented for Motus.
 
 | Diagnostic | Paper | Run | Analyse |
