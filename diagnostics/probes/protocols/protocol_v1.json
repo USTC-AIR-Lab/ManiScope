@@ -1,0 +1,76 @@
+{
+  "version": "1.0",
+  "frozen_at": "2026-09-23T07:27:00Z",
+  "task": "attr_color_block_3way",
+  "policies": [
+    "Pi05",
+    "Motus"
+  ],
+  "seeds": [
+    200000,
+    200001,
+    200002,
+    200003,
+    200004,
+    200005,
+    200006,
+    200007,
+    200008,
+    200009,
+    200010,
+    200011,
+    200012,
+    200013,
+    200014,
+    200015,
+    200016,
+    200017,
+    200018,
+    200019
+  ],
+  "development_seeds": [
+    199998,
+    199999
+  ],
+  "layouts": [
+    "original",
+    "swapped"
+  ],
+  "targets": [
+    "red",
+    "blue"
+  ],
+  "noise_seed": 17,
+  "noise_control_seed": 29,
+  "horizon": 256,
+  "unit": "scene seed; all paired cells aggregated within seed",
+  "primary_metrics": [
+    "first_loaded_gripper_contact_target_rate",
+    "paired_both_instructions_correct",
+    "paired_color_tracking_across_layouts",
+    "native_success_within_256_actions"
+  ],
+  "secondary_metrics": [
+    "first_geometric_approach_target",
+    "first_chunk_joint_rms_language_visual_noise",
+    "future_target_annotation_and_coverage",
+    "future_intervention_signed_target_progress"
+  ],
+  "contact_force_N": 0.1,
+  "approach": {
+    "radius_m": 0.12,
+    "margin_m": 0.02,
+    "min_motion_m": 0.03
+  },
+  "notes": [
+    "No seed exclusion by policy outcome. Infrastructure failures retained and repaired with provenance.",
+    "No expert-success selection. All scenes have same reachable cubic objects; initialization checked separately.",
+    "Physical red/blue actor poses exchanged; no image recoloring. Robot state and green distractor unchanged.",
+    "Native target role changed to match instruction; role is never supplied to policy.",
+    "First-decision observations and noise are paired exactly within each policy. Closed-loop later observations can diverge.",
+    "Future target is an observable approach proxy, not private intent. Include ambiguous and no-approach categories.",
+    "Internal intervention directional metric compared with sham and matched-norm controls. Donor validity reported, never silently selected.",
+    "Bootstrap seeds, not frames; 20 clusters. No architecture-wide causal ranking.",
+    "Existing agent budget unused; no API calls planned."
+  ]
+}

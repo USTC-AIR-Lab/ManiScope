@@ -1,0 +1,438 @@
+{
+  "version": "1.2",
+  "frozen_at": "2026-09-23T07:37:56Z",
+  "states": [
+    {
+      "seed": 200000,
+      "layout": "original",
+      "recipient": "red"
+    },
+    {
+      "seed": 200000,
+      "layout": "original",
+      "recipient": "blue"
+    },
+    {
+      "seed": 200000,
+      "layout": "swapped",
+      "recipient": "red"
+    },
+    {
+      "seed": 200000,
+      "layout": "swapped",
+      "recipient": "blue"
+    },
+    {
+      "seed": 200001,
+      "layout": "original",
+      "recipient": "red"
+    },
+    {
+      "seed": 200001,
+      "layout": "original",
+      "recipient": "blue"
+    },
+    {
+      "seed": 200001,
+      "layout": "swapped",
+      "recipient": "red"
+    },
+    {
+      "seed": 200001,
+      "layout": "swapped",
+      "recipient": "blue"
+    },
+    {
+      "seed": 200002,
+      "layout": "original",
+      "recipient": "red"
+    },
+    {
+      "seed": 200002,
+      "layout": "original",
+      "recipient": "blue"
+    },
+    {
+      "seed": 200002,
+      "layout": "swapped",
+      "recipient": "red"
+    },
+    {
+      "seed": 200002,
+      "layout": "swapped",
+      "recipient": "blue"
+    },
+    {
+      "seed": 200003,
+      "layout": "original",
+      "recipient": "red"
+    },
+    {
+      "seed": 200003,
+      "layout": "original",
+      "recipient": "blue"
+    },
+    {
+      "seed": 200003,
+      "layout": "swapped",
+      "recipient": "red"
+    },
+    {
+      "seed": 200003,
+      "layout": "swapped",
+      "recipient": "blue"
+    },
+    {
+      "seed": 200004,
+      "layout": "original",
+      "recipient": "red"
+    },
+    {
+      "seed": 200004,
+      "layout": "original",
+      "recipient": "blue"
+    },
+    {
+      "seed": 200004,
+      "layout": "swapped",
+      "recipient": "red"
+    },
+    {
+      "seed": 200004,
+      "layout": "swapped",
+      "recipient": "blue"
+    },
+    {
+      "seed": 200005,
+      "layout": "original",
+      "recipient": "red"
+    },
+    {
+      "seed": 200005,
+      "layout": "original",
+      "recipient": "blue"
+    },
+    {
+      "seed": 200005,
+      "layout": "swapped",
+      "recipient": "red"
+    },
+    {
+      "seed": 200005,
+      "layout": "swapped",
+      "recipient": "blue"
+    },
+    {
+      "seed": 200006,
+      "layout": "original",
+      "recipient": "red"
+    },
+    {
+      "seed": 200006,
+      "layout": "original",
+      "recipient": "blue"
+    },
+    {
+      "seed": 200006,
+      "layout": "swapped",
+      "recipient": "red"
+    },
+    {
+      "seed": 200006,
+      "layout": "swapped",
+      "recipient": "blue"
+    },
+    {
+      "seed": 200007,
+      "layout": "original",
+      "recipient": "red"
+    },
+    {
+      "seed": 200007,
+      "layout": "original",
+      "recipient": "blue"
+    },
+    {
+      "seed": 200007,
+      "layout": "swapped",
+      "recipient": "red"
+    },
+    {
+      "seed": 200007,
+      "layout": "swapped",
+      "recipient": "blue"
+    },
+    {
+      "seed": 200008,
+      "layout": "original",
+      "recipient": "red"
+    },
+    {
+      "seed": 200008,
+      "layout": "original",
+      "recipient": "blue"
+    },
+    {
+      "seed": 200008,
+      "layout": "swapped",
+      "recipient": "red"
+    },
+    {
+      "seed": 200008,
+      "layout": "swapped",
+      "recipient": "blue"
+    },
+    {
+      "seed": 200009,
+      "layout": "original",
+      "recipient": "red"
+    },
+    {
+      "seed": 200009,
+      "layout": "original",
+      "recipient": "blue"
+    },
+    {
+      "seed": 200009,
+      "layout": "swapped",
+      "recipient": "red"
+    },
+    {
+      "seed": 200009,
+      "layout": "swapped",
+      "recipient": "blue"
+    },
+    {
+      "seed": 200010,
+      "layout": "original",
+      "recipient": "red"
+    },
+    {
+      "seed": 200010,
+      "layout": "original",
+      "recipient": "blue"
+    },
+    {
+      "seed": 200010,
+      "layout": "swapped",
+      "recipient": "red"
+    },
+    {
+      "seed": 200010,
+      "layout": "swapped",
+      "recipient": "blue"
+    },
+    {
+      "seed": 200011,
+      "layout": "original",
+      "recipient": "red"
+    },
+    {
+      "seed": 200011,
+      "layout": "original",
+      "recipient": "blue"
+    },
+    {
+      "seed": 200011,
+      "layout": "swapped",
+      "recipient": "red"
+    },
+    {
+      "seed": 200011,
+      "layout": "swapped",
+      "recipient": "blue"
+    },
+    {
+      "seed": 200012,
+      "layout": "original",
+      "recipient": "red"
+    },
+    {
+      "seed": 200012,
+      "layout": "original",
+      "recipient": "blue"
+    },
+    {
+      "seed": 200012,
+      "layout": "swapped",
+      "recipient": "red"
+    },
+    {
+      "seed": 200012,
+      "layout": "swapped",
+      "recipient": "blue"
+    },
+    {
+      "seed": 200013,
+      "layout": "original",
+      "recipient": "red"
+    },
+    {
+      "seed": 200013,
+      "layout": "original",
+      "recipient": "blue"
+    },
+    {
+      "seed": 200013,
+      "layout": "swapped",
+      "recipient": "red"
+    },
+    {
+      "seed": 200013,
+      "layout": "swapped",
+      "recipient": "blue"
+    },
+    {
+      "seed": 200014,
+      "layout": "original",
+      "recipient": "red"
+    },
+    {
+      "seed": 200014,
+      "layout": "original",
+      "recipient": "blue"
+    },
+    {
+      "seed": 200014,
+      "layout": "swapped",
+      "recipient": "red"
+    },
+    {
+      "seed": 200014,
+      "layout": "swapped",
+      "recipient": "blue"
+    },
+    {
+      "seed": 200015,
+      "layout": "original",
+      "recipient": "red"
+    },
+    {
+      "seed": 200015,
+      "layout": "original",
+      "recipient": "blue"
+    },
+    {
+      "seed": 200015,
+      "layout": "swapped",
+      "recipient": "red"
+    },
+    {
+      "seed": 200015,
+      "layout": "swapped",
+      "recipient": "blue"
+    },
+    {
+      "seed": 200016,
+      "layout": "original",
+      "recipient": "red"
+    },
+    {
+      "seed": 200016,
+      "layout": "original",
+      "recipient": "blue"
+    },
+    {
+      "seed": 200016,
+      "layout": "swapped",
+      "recipient": "red"
+    },
+    {
+      "seed": 200016,
+      "layout": "swapped",
+      "recipient": "blue"
+    },
+    {
+      "seed": 200017,
+      "layout": "original",
+      "recipient": "red"
+    },
+    {
+      "seed": 200017,
+      "layout": "original",
+      "recipient": "blue"
+    },
+    {
+      "seed": 200017,
+      "layout": "swapped",
+      "recipient": "red"
+    },
+    {
+      "seed": 200017,
+      "layout": "swapped",
+      "recipient": "blue"
+    },
+    {
+      "seed": 200018,
+      "layout": "original",
+      "recipient": "red"
+    },
+    {
+      "seed": 200018,
+      "layout": "original",
+      "recipient": "blue"
+    },
+    {
+      "seed": 200018,
+      "layout": "swapped",
+      "recipient": "red"
+    },
+    {
+      "seed": 200018,
+      "layout": "swapped",
+      "recipient": "blue"
+    },
+    {
+      "seed": 200019,
+      "layout": "original",
+      "recipient": "red"
+    },
+    {
+      "seed": 200019,
+      "layout": "original",
+      "recipient": "blue"
+    },
+    {
+      "seed": 200019,
+      "layout": "swapped",
+      "recipient": "red"
+    },
+    {
+      "seed": 200019,
+      "layout": "swapped",
+      "recipient": "blue"
+    }
+  ],
+  "noise": 17,
+  "sites": "all 30 joint attention layers, all 10 denoising steps",
+  "tokens": "120 tokens of first future temporal group",
+  "conditions": [
+    "baseline",
+    "donor",
+    "sham",
+    "future",
+    "future_half",
+    "current",
+    "understanding",
+    "future_matched",
+    "current_matched",
+    "understanding_matched",
+    "future_scrambled"
+  ],
+  "matched_norm": "Per site, independently K and V, norm of unpatched donor-minus-recipient future. Controls scaled to this reference; actual norms logged.",
+  "primary_direction_metric": "Change in mean first-16-command nearest-arm distance preference toward donor target, from separate-scene forward kinematics. Positive = more donor-directed. Not actual executed motion.",
+  "secondary_direction_metric": "Projection onto full counterfactual donor joint-action delta; semantic validity not implied.",
+  "donor_validity": "Report all 40 states; additionally stratify by donor predicted visible target correct. A stricter informative stratum requires baseline and donor predicted visible targets differ. No donor is resampled for preferred outcome.",
+  "boundaries": [
+    "Scene-cluster resampling; directions paired within seed.",
+    "First-frame future generation is joint with action, not a serial plan.",
+    "Current and understanding groups can already contain mixed language and future information.",
+    "Token-feature rotation is an off-distribution norm-preserving control, not a clean semantic ablation.",
+    "Nominally matched norms may differ slightly due BF16; report realized differences.",
+    "No intervention-driven task-success claim without corresponding closed-loop execution."
+  ],
+  "amended_before_execution_at": "2026-09-23T07:41:08Z",
+  "matched_norm_comparison": "Compare future_matched, current_matched, understanding_matched and future_scrambled at the SAME frozen future delta-norm reference. Native future is reported separately.",
+  "layout_extension_registered_at": "2026-09-23T07:51:47Z",
+  "layout_extension_reason": "Complete the full paired-layout coverage instead of relying on original layouts alone. Added after inspecting first eight scene sheets; this is an exploratory extension, not a preregistered confirmatory test."
+}

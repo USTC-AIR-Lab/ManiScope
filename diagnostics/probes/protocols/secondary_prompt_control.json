@@ -1,0 +1,11 @@
+{
+  "registered_at": "2026-09-23T07:46:54Z",
+  "purpose": "Secondary wording robustness check motivated by the earlier pilot using both Pick up and Please pick up templates. Not used to choose the main template.",
+  "scope": "All 20 original layouts, both red and blue, both current exemplars; 80 additional first-decision calls, no closed-loop reruns",
+  "noise": 17,
+  "prompts": [
+    "Pick up the COLOR block.",
+    "Please pick up the COLOR block."
+  ],
+  "interpretation": "First-chunk action and future approach changes only. Report both templates without selecting the better result."
+}

@@ -1,10 +1,17 @@
 # ManipScope
 
-A RoboTwin-based benchmark for compositional generalization in robotic manipulation.
-ManipScope separates the simulation/evaluation loop from model inference adapters.
-The bundled **formal48-v1** suite contains **48 scenes**, **100 frozen seeds per scene**,
-and six composition axes: skill × object, skill × spatial relation, attribute binding,
-reference structure, temporal skill composition, and mixed composition.
+An evaluation-only diagnostic benchmark for robotic instruction following under changed task requirements,
+built on RoboTwin 2.0 simulation resources. ManipScope separates the simulation/evaluation loop from model
+inference adapters. The bundled **formal48-v1** suite contains **48 held-out scenes** with **100 frozen
+initial states per scene** in six task families: D1 skill-object transfer, D2 skill-spatial transfer,
+D3 attribute selection, D4 referring expressions, D5 skill sequences, and D6 mixed combinations. Each scene
+is linked to the RoboTwin 2.0 source tasks it derives from. Policies are trained on unmodified RoboTwin 2.0
+demonstrations; no demonstrations of the 48 evaluation scenes are provided.
+
+Beyond task success, [`diagnostics/`](diagnostics/README.md) tests whether a policy's choices follow the
+instruction: selection events and contact classes, failure decomposition, target reassignment on frozen
+initial states with its two controls, first-decision sensitivity, and the future-video and internal
+key/value probes for models that expose them.
 
 ![48 formal scenes](docs/images/formal48-overview.png)
 
@@ -28,13 +35,14 @@ EPISODES=1 RUN_NAME=smoke_dm05 bash suite/run_suite.sh dm05 move_can_coaster
 
 See [installation](docs/INSTALLATION.md) before the first simulation run.
 A dry run checks configuration and benchmark inputs; it does not check GPU compatibility.
-**Validation status:** CPU checks pass, including a clean clone. The current host's migrated GPU
-runtime fails the rendering smoke with a CUDA illegal-instruction error. See
-[the validation record](docs/NORMALIZATION.md) before running or reporting benchmark results.
+**Validation status:** CPU checks pass, including a clean clone. GPU rendering depends on the local driver
+and Vulkan setup; see [the validation record](docs/NORMALIZATION.md) before running or reporting benchmark
+results.
 
 ## Evaluation contract
 
-- Default: 50 episodes per scene, `demo_clean`, unseen instructions.
+- Runner default: 50 episodes per scene, `demo_clean`, unseen instructions. The reported policy results use
+  all 100 frozen initial states per scene (`EPISODES=100`); agents use the first 5.
 - Frozen seeds are used in file order; requesting more seeds than available fails early.
 - Each seed determines the instruction sampling. Actual instructions are recorded.
 - The first 10 evaluated seeds are eligible for head-camera video, independent of outcome.
@@ -46,6 +54,27 @@ runtime fails the rendering smoke with a CUDA illegal-instruction error. See
 - The checked-in scene implementations and `suite/scenes_v2.yaml` define this frozen release.
   Generators produce development candidates under `out/`; do not blindly replace the release.
 
+## Language-following diagnostics
+
+Run on any registered policy with the same evaluator and frozen initial states (details, definitions and
+the probe instructions: [diagnostics/README.md](diagnostics/README.md)).
+
+| Diagnostic | Paper section | Command |
+| --- | --- | --- |
+| Selection events (first contact, first 5 cm displacement, grasp / push / brush contact classes) | 5.2, App. D.5 | `python3 diagnostics/run_diagnostic.py run selection_events --policy <p> --start-server` |
+| Failure decomposition by displaced objects | 5.2, App. D.6 | `python3 diagnostics/analysis/failure_decomposition.py <p>=<formal run dir>` |
+| Target reassignment (instruction rotation) with the instruction-blind reference | 5.3, App. G.2 | `python3 diagnostics/run_diagnostic.py run rotation --policy <p> --start-server` |
+| Instruction change on unmodified RoboTwin training tasks | App. G.3 | `python3 diagnostics/run_diagnostic.py run training_control --policy <p> --start-server` |
+| Source-task baseline | App. G.3 | `python3 diagnostics/run_diagnostic.py run source_baseline --policy <p> --start-server` |
+| First-decision sensitivity | App. E | `python3 diagnostics/run_diagnostic.py run first_decision --policy <p> --start-server` |
+| Future-video readout and internal K/V intervention (Motus) | 5.3, App. E.2-E.3 | see [diagnostics/probes](diagnostics/probes/README.md) |
+| Example remedies: language guidance, agent-selection relay | App. G.4 | see [diagnostics/README.md](diagnostics/README.md#example-remedies-appendix-g4) |
+
+Each run writes one JSON record per episode under `runs/diagnostics/`; the matching scripts in
+`diagnostics/analysis/` (`rotation.py`, `controls.py`, `selection_events.py`, `first_decision.py`) produce the
+tables. Create the instrumented evaluator once with `python3 diagnostics/make_eval_diagnostic.py .`
+(a generated copy, `script/eval_diagnostic.py`, is included).
+
 ## Repository
 
 - `envs/`: RoboTwin environments, common composition engine, and vendored cuRobo.
@@ -53,6 +82,7 @@ runtime fails the rendering smoke with a CUDA illegal-instruction error. See
 - `suite/scenes_v2.yaml`, `suite/seeds/`: formal membership and reproducible episode seeds.
 - `suite/policies.yaml`, `policy/`: public model registrations and adapters.
 - `suite/run_suite.sh`: sequential evaluation; parallel/retry wrappers are also included.
+- `diagnostics/`: language-following diagnostics, model-access probes and example remedies.
 - `tools/`, `tests/`: preflight, provenance, release validation and regression tests.
 - `docs/RESULTS_PROVENANCE.md`: reporting scope and provenance requirements.
 

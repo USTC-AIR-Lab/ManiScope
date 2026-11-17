@@ -1,0 +1,222 @@
+[
+  {
+    "id": "pi05_200001_original_red",
+    "seed": 200001,
+    "layout": "original",
+    "target": "red",
+    "policy": "Pi05",
+    "horizon": 256,
+    "noise_seed": 17,
+    "gpu": 1,
+    "url": "http://127.0.0.1:8201"
+  },
+  {
+    "id": "pi05_200001_original_blue",
+    "seed": 200001,
+    "layout": "original",
+    "target": "blue",
+    "policy": "Pi05",
+    "horizon": 256,
+    "noise_seed": 17,
+    "gpu": 1,
+    "url": "http://127.0.0.1:8201"
+  },
+  {
+    "id": "pi05_200001_swapped_red",
+    "seed": 200001,
+    "layout": "swapped",
+    "target": "red",
+    "policy": "Pi05",
+    "horizon": 256,
+    "noise_seed": 17,
+    "gpu": 1,
+    "url": "http://127.0.0.1:8201"
+  },
+  {
+    "id": "pi05_200001_swapped_blue",
+    "seed": 200001,
+    "layout": "swapped",
+    "target": "blue",
+    "policy": "Pi05",
+    "horizon": 256,
+    "noise_seed": 17,
+    "gpu": 1,
+    "url": "http://127.0.0.1:8201"
+  },
+  {
+    "id": "pi05_200005_original_red",
+    "seed": 200005,
+    "layout": "original",
+    "target": "red",
+    "policy": "Pi05",
+    "horizon": 256,
+    "noise_seed": 17,
+    "gpu": 1,
+    "url": "http://127.0.0.1:8201"
+  },
+  {
+    "id": "pi05_200005_original_blue",
+    "seed": 200005,
+    "layout": "original",
+    "target": "blue",
+    "policy": "Pi05",
+    "horizon": 256,
+    "noise_seed": 17,
+    "gpu": 1,
+    "url": "http://127.0.0.1:8201"
+  },
+  {
+    "id": "pi05_200005_swapped_red",
+    "seed": 200005,
+    "layout": "swapped",
+    "target": "red",
+    "policy": "Pi05",
+    "horizon": 256,
+    "noise_seed": 17,
+    "gpu": 1,
+    "url": "http://127.0.0.1:8201"
+  },
+  {
+    "id": "pi05_200005_swapped_blue",
+    "seed": 200005,
+    "layout": "swapped",
+    "target": "blue",
+    "policy": "Pi05",
+    "horizon": 256,
+    "noise_seed": 17,
+    "gpu": 1,
+    "url": "http://127.0.0.1:8201"
+  },
+  {
+    "id": "pi05_200009_original_red",
+    "seed": 200009,
+    "layout": "original",
+    "target": "red",
+    "policy": "Pi05",
+    "horizon": 256,
+    "noise_seed": 17,
+    "gpu": 1,
+    "url": "http://127.0.0.1:8201"
+  },
+  {
+    "id": "pi05_200009_original_blue",
+    "seed": 200009,
+    "layout": "original",
+    "target": "blue",
+    "policy": "Pi05",
+    "horizon": 256,
+    "noise_seed": 17,
+    "gpu": 1,
+    "url": "http://127.0.0.1:8201"
+  },
+  {
+    "id": "pi05_200009_swapped_red",
+    "seed": 200009,
+    "layout": "swapped",
+    "target": "red",
+    "policy": "Pi05",
+    "horizon": 256,
+    "noise_seed": 17,
+    "gpu": 1,
+    "url": "http://127.0.0.1:8201"
+  },
+  {
+    "id": "pi05_200009_swapped_blue",
+    "seed": 200009,
+    "layout": "swapped",
+    "target": "blue",
+    "policy": "Pi05",
+    "horizon": 256,
+    "noise_seed": 17,
+    "gpu": 1,
+    "url": "http://127.0.0.1:8201"
+  },
+  {
+    "id": "pi05_200013_original_red",
+    "seed": 200013,
+    "layout": "original",
+    "target": "red",
+    "policy": "Pi05",
+    "horizon": 256,
+    "noise_seed": 17,
+    "gpu": 1,
+    "url": "http://127.0.0.1:8201"
+  },
+  {
+    "id": "pi05_200013_original_blue",
+    "seed": 200013,
+    "layout": "original",
+    "target": "blue",
+    "policy": "Pi05",
+    "horizon": 256,
+    "noise_seed": 17,
+    "gpu": 1,
+    "url": "http://127.0.0.1:8201"
+  },
+  {
+    "id": "pi05_200013_swapped_red",
+    "seed": 200013,
+    "layout": "swapped",
+    "target": "red",
+    "policy": "Pi05",
+    "horizon": 256,
+    "noise_seed": 17,
+    "gpu": 1,
+    "url": "http://127.0.0.1:8201"
+  },
+  {
+    "id": "pi05_200013_swapped_blue",
+    "seed": 200013,
+    "layout": "swapped",
+    "target": "blue",
+    "policy": "Pi05",
+    "horizon": 256,
+    "noise_seed": 17,
+    "gpu": 1,
+    "url": "http://127.0.0.1:8201"
+  },
+  {
+    "id": "pi05_200017_original_red",
+    "seed": 200017,
+    "layout": "original",
+    "target": "red",
+    "policy": "Pi05",
+    "horizon": 256,
+    "noise_seed": 17,
+    "gpu": 1,
+    "url": "http://127.0.0.1:8201"
+  },
+  {
+    "id": "pi05_200017_original_blue",
+    "seed": 200017,
+    "layout": "original",
+    "target": "blue",
+    "policy": "Pi05",
+    "horizon": 256,
+    "noise_seed": 17,
+    "gpu": 1,
+    "url": "http://127.0.0.1:8201"
+  },
+  {
+    "id": "pi05_200017_swapped_red",
+    "seed": 200017,
+    "layout": "swapped",
+    "target": "red",
+    "policy": "Pi05",
+    "horizon": 256,
+    "noise_seed": 17,
+    "gpu": 1,
+    "url": "http://127.0.0.1:8201"
+  },
+  {
+    "id": "pi05_200017_swapped_blue",
+    "seed": 200017,
+    "layout": "swapped",
+    "target": "blue",
+    "policy": "Pi05",
+    "horizon": 256,
+    "noise_seed": 17,
+    "gpu": 1,
+    "url": "http://127.0.0.1:8201"
+  }
+]

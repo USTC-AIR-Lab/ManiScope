@@ -1,0 +1,222 @@
+[
+  {
+    "id": "motus_200000_original_red",
+    "seed": 200000,
+    "layout": "original",
+    "target": "red",
+    "policy": "Motus",
+    "horizon": 256,
+    "noise_seed": 17,
+    "gpu": 4,
+    "url": "http://127.0.0.1:8204"
+  },
+  {
+    "id": "motus_200000_original_blue",
+    "seed": 200000,
+    "layout": "original",
+    "target": "blue",
+    "policy": "Motus",
+    "horizon": 256,
+    "noise_seed": 17,
+    "gpu": 4,
+    "url": "http://127.0.0.1:8204"
+  },
+  {
+    "id": "motus_200000_swapped_red",
+    "seed": 200000,
+    "layout": "swapped",
+    "target": "red",
+    "policy": "Motus",
+    "horizon": 256,
+    "noise_seed": 17,
+    "gpu": 4,
+    "url": "http://127.0.0.1:8204"
+  },
+  {
+    "id": "motus_200000_swapped_blue",
+    "seed": 200000,
+    "layout": "swapped",
+    "target": "blue",
+    "policy": "Motus",
+    "horizon": 256,
+    "noise_seed": 17,
+    "gpu": 4,
+    "url": "http://127.0.0.1:8204"
+  },
+  {
+    "id": "motus_200004_original_red",
+    "seed": 200004,
+    "layout": "original",
+    "target": "red",
+    "policy": "Motus",
+    "horizon": 256,
+    "noise_seed": 17,
+    "gpu": 4,
+    "url": "http://127.0.0.1:8204"
+  },
+  {
+    "id": "motus_200004_original_blue",
+    "seed": 200004,
+    "layout": "original",
+    "target": "blue",
+    "policy": "Motus",
+    "horizon": 256,
+    "noise_seed": 17,
+    "gpu": 4,
+    "url": "http://127.0.0.1:8204"
+  },
+  {
+    "id": "motus_200004_swapped_red",
+    "seed": 200004,
+    "layout": "swapped",
+    "target": "red",
+    "policy": "Motus",
+    "horizon": 256,
+    "noise_seed": 17,
+    "gpu": 4,
+    "url": "http://127.0.0.1:8204"
+  },
+  {
+    "id": "motus_200004_swapped_blue",
+    "seed": 200004,
+    "layout": "swapped",
+    "target": "blue",
+    "policy": "Motus",
+    "horizon": 256,
+    "noise_seed": 17,
+    "gpu": 4,
+    "url": "http://127.0.0.1:8204"
+  },
+  {
+    "id": "motus_200008_original_red",
+    "seed": 200008,
+    "layout": "original",
+    "target": "red",
+    "policy": "Motus",
+    "horizon": 256,
+    "noise_seed": 17,
+    "gpu": 4,
+    "url": "http://127.0.0.1:8204"
+  },
+  {
+    "id": "motus_200008_original_blue",
+    "seed": 200008,
+    "layout": "original",
+    "target": "blue",
+    "policy": "Motus",
+    "horizon": 256,
+    "noise_seed": 17,
+    "gpu": 4,
+    "url": "http://127.0.0.1:8204"
+  },
+  {
+    "id": "motus_200008_swapped_red",
+    "seed": 200008,
+    "layout": "swapped",
+    "target": "red",
+    "policy": "Motus",
+    "horizon": 256,
+    "noise_seed": 17,
+    "gpu": 4,
+    "url": "http://127.0.0.1:8204"
+  },
+  {
+    "id": "motus_200008_swapped_blue",
+    "seed": 200008,
+    "layout": "swapped",
+    "target": "blue",
+    "policy": "Motus",
+    "horizon": 256,
+    "noise_seed": 17,
+    "gpu": 4,
+    "url": "http://127.0.0.1:8204"
+  },
+  {
+    "id": "motus_200012_original_red",
+    "seed": 200012,
+    "layout": "original",
+    "target": "red",
+    "policy": "Motus",
+    "horizon": 256,
+    "noise_seed": 17,
+    "gpu": 4,
+    "url": "http://127.0.0.1:8204"
+  },
+  {
+    "id": "motus_200012_original_blue",
+    "seed": 200012,
+    "layout": "original",
+    "target": "blue",
+    "policy": "Motus",
+    "horizon": 256,
+    "noise_seed": 17,
+    "gpu": 4,
+    "url": "http://127.0.0.1:8204"
+  },
+  {
+    "id": "motus_200012_swapped_red",
+    "seed": 200012,
+    "layout": "swapped",
+    "target": "red",
+    "policy": "Motus",
+    "horizon": 256,
+    "noise_seed": 17,
+    "gpu": 4,
+    "url": "http://127.0.0.1:8204"
+  },
+  {
+    "id": "motus_200012_swapped_blue",
+    "seed": 200012,
+    "layout": "swapped",
+    "target": "blue",
+    "policy": "Motus",
+    "horizon": 256,
+    "noise_seed": 17,
+    "gpu": 4,
+    "url": "http://127.0.0.1:8204"
+  },
+  {
+    "id": "motus_200016_original_red",
+    "seed": 200016,
+    "layout": "original",
+    "target": "red",
+    "policy": "Motus",
+    "horizon": 256,
+    "noise_seed": 17,
+    "gpu": 4,
+    "url": "http://127.0.0.1:8204"
+  },
+  {
+    "id": "motus_200016_original_blue",
+    "seed": 200016,
+    "layout": "original",
+    "target": "blue",
+    "policy": "Motus",
+    "horizon": 256,
+    "noise_seed": 17,
+    "gpu": 4,
+    "url": "http://127.0.0.1:8204"
+  },
+  {
+    "id": "motus_200016_swapped_red",
+    "seed": 200016,
+    "layout": "swapped",
+    "target": "red",
+    "policy": "Motus",
+    "horizon": 256,
+    "noise_seed": 17,
+    "gpu": 4,
+    "url": "http://127.0.0.1:8204"
+  },
+  {
+    "id": "motus_200016_swapped_blue",
+    "seed": 200016,
+    "layout": "swapped",
+    "target": "blue",
+    "policy": "Motus",
+    "horizon": 256,
+    "noise_seed": 17,
+    "gpu": 4,
+    "url": "http://127.0.0.1:8204"
+  }
+]

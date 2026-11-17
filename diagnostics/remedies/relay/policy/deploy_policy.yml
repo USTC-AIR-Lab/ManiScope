@@ -1,0 +1,10 @@
+policy_name: Relay
+task_name: null
+task_config: demo_clean
+ckpt_setting: relay
+seed: 0
+instruction_type: unseen
+
+base_url: http://127.0.0.1:18770
+bridge_token_file: null
+max_llm_calls: 20
