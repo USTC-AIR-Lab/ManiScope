@@ -7,3 +7,12 @@ Run `python3 tools/validate_repo.py` and `python3 -m pytest -q tests`. Explain a
 protocol implications, and actual runtime validation in changes. Changes to frozen seeds, criteria,
 geometry or instructions require a new documented protocol version, not a silent hash refresh.
 For a new adapter, document upstream revision, environment, action convention and reset behavior.
+
+## Submitting an evaluation
+
+Evaluation results are a separate path from code changes: run the development set, then file an
+evaluation request so the organizers can run the private initial states. The process, the result
+format, the two tracks and the cost split are in [docs/SUBMISSIONS.md](docs/SUBMISSIONS.md).
+Check a result file with `python3 tools/validate_submission.py <file>` before opening the issue or
+pull request. Never put an API key, a token or a seed value in an issue, a pull request, a log or a
+submission file.

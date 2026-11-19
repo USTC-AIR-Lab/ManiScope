@@ -35,6 +35,9 @@ DRY_RUN=1 bash suite/run_suite.sh dm05 move_can_coaster
 EPISODES=1 RUN_NAME=smoke_dm05 bash suite/run_suite.sh dm05 move_can_coaster
 ```
 
+To evaluate a new model or system, start with the development set and the submission process in
+[docs/SUBMISSIONS.md](docs/SUBMISSIONS.md): `DRY_RUN=1 bash suite/run_dev_check.sh <policy_key>`.
+
 See [installation](docs/INSTALLATION.md) before the first simulation run.
 A dry run checks configuration and benchmark inputs; it does not check GPU compatibility.
 **Validation status:** CPU checks pass, including a clean clone. GPU rendering depends on the local driver
@@ -98,6 +101,7 @@ tables. Create the instrumented evaluator once with `python3 diagnostics/make_ev
 - [Development and frozen protocol](docs/DEVELOPMENT.md)
 - [Optional external EEF agent](docs/EXTERNAL_AGENT.md)
 - [Normalization and validation status](docs/NORMALIZATION.md)
+- [Submitting an evaluation](docs/SUBMISSIONS.md) and the [model configuration interface](configs/model_configs/README.md)
 - [Contributing](CONTRIBUTING.md), [security](SECURITY.md), [third-party notices](THIRD_PARTY_NOTICES.md)
 
 ## Attribution and license

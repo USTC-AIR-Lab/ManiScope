@@ -1,0 +1,28 @@
+name: New task or scene proposal
+description: Propose a new scene or task family for a future protocol version
+title: "[task] <proposed scene name>"
+labels: ["task-proposal"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        New scenes enter a development area first and are released with a new protocol version, so
+        the existing 48-scene leaderboard stays comparable.
+  - type: textarea
+    id: requirement
+    attributes:
+      label: Instruction and success rule
+      description: The instruction, the target and goal conditions, the ordering requirement if any, and what counts as a distractor.
+    validations: {required: true}
+  - type: textarea
+    id: generalization
+    attributes:
+      label: Declared change from training
+      description: Which RoboTwin source tasks it derives from and what is changed (object, relation, attribute, composition, ordering). Level L1-L4 with a reason.
+    validations: {required: true}
+  - type: textarea
+    id: feasibility
+    attributes:
+      label: Expert feasibility
+      description: Can a scripted expert solve it, and at what yield? Scenes below a 30% expert yield were excluded from the formal set.
+    validations: {required: true}

@@ -1,0 +1,23 @@
+name: submissions
+on:
+  pull_request:
+    paths: ["submissions/**", "tools/validate_submission.py", "submissions/schema/**"]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - run: python3 -m pip install --quiet jsonschema pyyaml
+      - name: Validate submission files
+        run: |
+          shopt -s nullglob globstar
+          files=(submissions/**/*.json)
+          keep=()
+          for f in "${files[@]}"; do [[ "$f" == submissions/schema/* ]] || keep+=("$f"); done
+          if [[ ${#keep[@]} -eq 0 ]]; then echo "no submission files"; exit 0; fi
+          python3 tools/validate_submission.py "${keep[@]}"

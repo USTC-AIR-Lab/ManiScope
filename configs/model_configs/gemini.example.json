@@ -1,0 +1,8 @@
+{
+  "provider": "gemini",
+  "base_url": "https://api.example.com",
+  "model": "REPLACE-model-id",
+  "reasoning_effort": "high",
+  "max_output_tokens": 65536,
+  "api_key_file": "REPLACE/absolute/path/to/api_key"
+}

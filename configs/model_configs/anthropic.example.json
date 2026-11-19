@@ -1,0 +1,8 @@
+{
+  "provider": "anthropic",
+  "base_url": "https://api.example.com/v1",
+  "model": "REPLACE-model-id",
+  "reasoning_effort": "high",
+  "max_output_tokens": 16000,
+  "api_key_file": "REPLACE/absolute/path/to/api_key"
+}

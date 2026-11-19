@@ -119,6 +119,11 @@ class Bridge:
         self.endpoint, self.key = endpoint, key
         self.model = config.get("model", "gpt-6-astra")
         self.effort = config.get("reasoning_effort", "medium")
+        # Output cap per request. Reasoning can exhaust the cap before a tool call is emitted,
+        # so a new model may need a larger value than this provider default; report the value used.
+        self.max_output_tokens = int(config.get("max_output_tokens") or
+                                     {"responses": 4096, "chat": 8192, "gemini": 8192,
+                                      "anthropic": 16000}.get(self.provider, 8192))
         self.opener = build_opener(ProxyHandler({}), HTTPSHandler(), NoRedirect())
         self.history = []
         self.calls, self.max_calls = 0, max_calls
@@ -148,7 +153,7 @@ class Bridge:
         if self.provider == "responses":
             return ({"model": self.model, "instructions": PROMPT, "input": self.history,
                      "tools": TOOLS, "tool_choice": "required", "parallel_tool_calls": False,
-                     "reasoning": {"effort": self.effort}, "max_output_tokens": 4096,
+                     "reasoning": {"effort": self.effort}, "max_output_tokens": self.max_output_tokens,
                      "store": False, "include": ["reasoning.encrypted_content"],
                      "prompt_cache_key": getattr(self, "cache_key", "ep-0")}, h)   # Route this episode through a stable prompt-cache key.
         if self.provider == "chat":
@@ -174,7 +179,7 @@ class Bridge:
             content += [{"type": "text", "text": "Current observation:"}] + cur
             return ({"model": self.model, "messages": [{"role": "system", "content": PROMPT}, {"role": "user", "content": content}],
                      "tools": tools, "tool_choice": "required", "parallel_tool_calls": False,
-                     "reasoning_effort": self.effort, "max_tokens": 8192}, h)
+                     "reasoning_effort": self.effort, "max_tokens": self.max_output_tokens}, h)
         if self.provider == "gemini":
             # Native Gemini retains function-call signatures; retry modes progressively omit signatures/history.
 
@@ -228,7 +233,7 @@ class Bridge:
             return ({"system_instruction": {"parts": [{"text": PROMPT}]}, "contents": contents,
                      "tools": [{"functionDeclarations": decls}],
                      "toolConfig": {"functionCallingConfig": {"mode": "ANY"}},
-                     "generationConfig": {"maxOutputTokens": 8192, "thinkingConfig": {"thinkingLevel": self.effort.upper()}}}, h)
+                     "generationConfig": {"maxOutputTokens": self.max_output_tokens, "thinkingConfig": {"thinkingLevel": self.effort.upper()}}}, h)
         # Anthropic thinking uses automatic tool choice with a prompt constraint.
         tools = [{"name": t["name"], "description": t["description"], "input_schema": t["parameters"]} for t in TOOLS]
         h["anthropic-version"] = "2023-06-01"
@@ -253,7 +258,7 @@ class Bridge:
             messages[i] = dict(messages[i], content=blocks)
         return ({"model": self.model, "system": system, "messages": messages, "tools": tools,
                  "tool_choice": {"type": "auto"}, "thinking": {"type": "adaptive"},
-                 "output_config": {"effort": self.effort}, "max_tokens": 16000}, h)
+                 "output_config": {"effort": self.effort}, "max_tokens": self.max_output_tokens}, h)
 
     def _parse_tool_call(self, result):
         """Return the parsed tool call and the assistant output retained in history."""

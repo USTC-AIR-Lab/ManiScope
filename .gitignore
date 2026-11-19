@@ -48,3 +48,6 @@ id_ed25519*
 *token*.txt
 /validation-local.json
 /suite/seeds/*.json
+
+# Local submission exports from suite/run_dev_check.sh
+submissions/out/

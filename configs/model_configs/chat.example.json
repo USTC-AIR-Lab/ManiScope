@@ -1,0 +1,8 @@
+{
+  "provider": "chat",
+  "base_url": "https://api.example.com/v1",
+  "model": "REPLACE-model-id",
+  "reasoning_effort": "high",
+  "max_output_tokens": 8192,
+  "api_key_file": "REPLACE/absolute/path/to/api_key"
+}

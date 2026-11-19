@@ -1,0 +1,18 @@
+# Public development set: one scene per task family, used to verify that a system actually drives
+# the robot and that its logs export cleanly before an official evaluation is requested.
+#
+# Development seeds are generated locally by suite/gen_seeds.py, so initial states differ between
+# participants and from the formal set. Development results are never leaderboard results, and
+# suite/run_dev_check.sh marks them seed_source=self_generated_dev.
+#
+# The two skill-sequence scenes whose instruction delivery differs between policies and the first
+# two evaluated agents (adjust_bottle_dustbin, stapler_pad_press) are deliberately not in this set.
+name: dev6
+episodes_per_scene: 5
+scenes:
+  - move_can_coaster          # D1 skill x object, L1
+  - place_a2b_left_novel      # D2 skill x spatial, L1
+  - attr_bind_bottle          # D3 attribute binding, L1
+  - ref_block_on_plate        # D4 instruction structure, L1
+  - click_bell_press_stapler  # D5 skill sequence, L2
+  - move_cup_pad_mix          # D6 mixture, L2

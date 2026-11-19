@@ -14,7 +14,13 @@ runtime directory and set `AGENT_RUNTIME_DIR` to it. Keep it outside version con
 is ignored. Use restrictive permissions (directory 700, credential/config files 600).
 
 Supply a JSON config with `provider` (`responses`, `gemini`, `chat` or `anthropic`), `base_url`
-(an HTTPS API base), `model`, `reasoning_effort` and `api_key_file`. The key file contains one line.
+(an HTTPS API base), `model`, `reasoning_effort`, an optional `max_output_tokens` and
+`api_key_file`. The key file contains one line. Templates for the four providers are in
+[`configs/model_configs/`](../configs/model_configs/README.md); swapping that one file is how a
+new API model is evaluated through the standard agent framework. `max_output_tokens` defaults to
+the per-provider value in `local_bridge.py` (4,096 responses, 8,192 chat and Gemini, 16,000
+Anthropic); a model whose reasoning exhausts the cap before emitting a tool action needs a larger
+value, and the value used must be reported with the result.
 No provider URL or account is preconfigured. The bridge disables redirects and environment proxies.
 
 Create these two files in `AGENT_RUNTIME_DIR` before the first run:
