@@ -1,8 +1,9 @@
 # Submitting an evaluation
 
-Status: **draft v0.1 of the participation protocol.** The interfaces and file formats below are
-checked in and usable today. The organizer-side capacity numbers, the contact channel and the
-review turnaround are marked `TODO(organizers)` and must be fixed before this page is advertised.
+Status: **v0.1 of the participation protocol.** The interfaces, file formats and the schedule below
+are in force. One value is still missing: the private address for credentials, marked
+`TODO(organizers)` under [Cost and scheduling](#5-cost-and-scheduling). Until it is filled in, ask
+in the request issue how to send a key — never post one.
 
 ManipScope is evaluation-only and its formal seed lists are private, so a score is only comparable
 when it was produced on the organizer-held initial states. Participation therefore has three
@@ -58,8 +59,11 @@ The request must contain:
 - who pays for what (see [Cost](#5-cost-and-scheduling)).
 
 Never put an API key, a bearer token or a private seed list in an issue, a pull request, a log or a
-submission file. Credentials are exchanged over a private channel only — `TODO(organizers)`: name it.
+submission file. Credentials are exchanged over the private channel named below, and a key that
+appears in a public place is treated as compromised and must be revoked.
 `tools/validate_submission.py` rejects files that contain key-shaped strings or raw seed values.
+
+Requests are acknowledged within **5 working days**, with a list of anything missing.
 
 ## 3. Official evaluation
 
@@ -68,8 +72,27 @@ the request, and publish the resulting score with the logs they produced. The pr
 `formal48-v1` release: 48 scenes, and for agent systems the first 5 initial states per scene, 240
 episodes in total. Policies use all 100 per scene (4,800 episodes).
 
-A run is scheduled as a batch, not on demand. Capacity, queue order and the number of official runs
-per system per protocol version are `TODO(organizers)`.
+A run is scheduled as a batch, not on demand:
+
+| Stage | When |
+| --- | --- |
+| Development-set check | self-serve, any time |
+| Request acknowledged, with anything missing listed | 5 working days |
+| Batch cutoff | the 1st of each month; requests complete by then enter that batch |
+| Official result published | within 15 days of the batch starting |
+| Community-reported pull request merged or declined with a reason | 5 working days after CI passes |
+
+Each system gets **one official run per protocol version**. A second run happens only when the
+organizers change the harness or the protocol, or when a defect on the organizer side is recorded;
+both results then stay visible with their dates and the superseded one is labelled. Re-requesting
+does not buy a retry, and a failed or aborted official run is reported with its reason.
+
+Admission to a batch is by measured cost, not by quota. Simulation time dominates and differs by an
+order of magnitude between systems: at 240 episodes, the five agent runs in the paper cost between
+18 and 188 GPU-hours. A batch holds roughly 150 GPU-hours, so in practice two to four agent systems
+a month, or one policy checkpoint (4,800 episodes). A single system projected above 200 GPU-hours is
+held over to its own batch and told why. The development set is one eighth of an agent run: report
+its measured wall time per episode in the request, because that is what the batch is planned from.
 
 ## 4. Result status and tracks
 
@@ -107,8 +130,15 @@ the inference GPUs.
   run the simulator and the agent framework against it.
 - **Open-weights models**: provide a container image and a weights location; the organizers run both.
 
-Start with the development set, then request the full 48-scene batch. `TODO(organizers)`: per-batch
-GPU hour estimate and the cap on concurrent requests.
+Keys are accepted only at the private address `TODO(organizers): role address, e.g.
+manipscope-eval@<institution>` — not in an issue, a pull request, a log or a result file. Use a key
+scoped to your own project with a spending cap and, where the provider supports it, an expiry date;
+the cap protects you, because a 188 GPU-hour run is also a long billing window. The organizers hold
+it only in the evaluation machine's private runtime directory and ask you to revoke it when the
+batch ends.
+
+Start with the development set, then request the full 48-scene batch. One request per system per
+batch; the organizers say in the acknowledgement which batch it entered.
 
 ## 6. What every result must record
 
@@ -138,3 +168,10 @@ Proposals for new scenes enter a development area first and are released with a 
 version, so the existing 48-scene leaderboard stays comparable. Changing scenes, seeds, instruction
 pools or step limits requires a new protocol version, never a silent hash refresh
 (see [docs/DEVELOPMENT.md](DEVELOPMENT.md)).
+
+## Who does what
+
+The organizer-side procedure — batch planning, credential handling, the official run commands and
+the review checklist applied before a result is merged — is in
+[docs/ORGANIZER_RUNBOOK.md](ORGANIZER_RUNBOOK.md), so you can see exactly what happens to a request
+after it is filed.

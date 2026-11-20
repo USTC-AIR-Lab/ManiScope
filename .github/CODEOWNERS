@@ -1,0 +1,10 @@
+# Review requests for submitted results, so the organizers are notified when one arrives.
+#
+# TODO(organizers): uncomment and replace <team> with the organization team that reviews
+# submissions (Settings -> Teams). A team slug is used rather than a personal handle: it survives
+# personnel changes and keeps a personal identity out of this public repository. An owner that does
+# not exist is reported as an error on the repository's CODEOWNERS page, so leave this commented
+# until the team exists.
+#
+# submissions/      @embodied-ai-research/<team>
+# docs/SUBMISSIONS.md   @embodied-ai-research/<team>
