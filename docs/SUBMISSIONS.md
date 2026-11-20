@@ -118,6 +118,16 @@ Tracks separate two different questions:
 | `standard_agent` | prompt, tool schema, memory handling, controller, budgets | the base model and its request settings |
 | `open_system` | the environment, the scenes, the seeds, the success rule | planner, tools, memory, skills, control policy |
 
+The `standard_agent` tool surface is exactly two tools: `move_eef`, the only tool that actuates the
+robot, and `finish`, which ends the attempt without establishing success — the environment decides.
+Two tools is not little information: the three camera views, the measured end-effector and joint
+state and the execution, contact and tracking feedback are supplied with every request rather than
+fetched by the model. What the surface excludes is code execution, a shell, file access and
+retrieval, so the model solves the manipulation problem itself instead of orchestrating other
+software. Declare the surface in `system.tools`; for this track it must be exactly
+`["finish", "move_eef"]`, which is what the agent framework the organizers run provides. This is the
+checked-in tool schema, not an audit of the raw call logs of the systems already published.
+
 The `standard_agent` track is the one that answers "which base model follows instructions better";
 `open_system` compares complete systems. A single frozen protocol per track is a precondition for
 reading a column as a model comparison: the five agent results in the paper were obtained under
