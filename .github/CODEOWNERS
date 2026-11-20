@@ -6,5 +6,5 @@
 # not exist is reported as an error on the repository's CODEOWNERS page, so leave this commented
 # until the team exists.
 #
-# submissions/      @embodied-ai-research/<team>
-# docs/SUBMISSIONS.md   @embodied-ai-research/<team>
+# submissions/      @USTC-AIR-Lab/<team>
+# docs/SUBMISSIONS.md   @USTC-AIR-Lab/<team>
