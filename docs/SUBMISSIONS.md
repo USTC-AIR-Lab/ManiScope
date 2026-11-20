@@ -45,8 +45,11 @@ agent and the only thing you change is a provider config file — see
 
 ## 2. Filing a request
 
-Open an issue with the **Evaluation request** template (or a pull request that adds a
-`submissions/<track>/<system>/<date>/submission.json`, which is what the organizers merge later).
+Requests and results are filed in the **website repository**, where the leaderboard is built:
+<https://github.com/embodied-ai-research/ManipScope_webpage>. Open an issue there with the *Evaluation request* template, or a pull request adding
+`submissions/<track>/<system>/<date>/submission.json`. Scene, seed and evaluator problems and new
+task proposals belong in this repository instead, because they are code and protocol changes.
+
 The request must contain:
 
 - the exact system name and version as it should appear on the leaderboard;
@@ -61,7 +64,8 @@ The request must contain:
 Never put an API key, a bearer token or a private seed list in an issue, a pull request, a log or a
 submission file. Credentials are exchanged over the private channel named below, and a key that
 appears in a public place is treated as compromised and must be revoked.
-`tools/validate_submission.py` rejects files that contain key-shaped strings or raw seed values.
+`tools/validate_submission.py` rejects files that contain key-shaped strings or raw seed values;
+the website repository runs the same check on every submission pull request.
 
 Requests are acknowledged within **5 working days**, with a list of anything missing.
 

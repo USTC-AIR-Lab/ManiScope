@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 """Check a submission file before it is merged or evaluated.
 
+The same file runs in the benchmark repository and in the website repository, where submissions are
+filed: the scene list comes from suite/scenes_v2.yaml when present and from data/tasks.json
+otherwise, so the two copies stay byte-identical and can be compared with diff.
+
 Validates structure against submissions/schema/submission.schema.json, checks scene and episode
 coverage against the frozen scene list, recomputes Overall and Pooled from the per-episode records,
 and refuses files that carry credentials or private seed values. A clean report means the file is
@@ -17,8 +21,10 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SCHEMA = os.path.join(ROOT, "submissions", "schema", "submission.schema.json")
-SCENES = os.path.join(ROOT, "suite", "scenes_v2.yaml")
+SCENES = os.path.join(ROOT, "suite", "scenes_v2.yaml")          # benchmark repository
+TASKS_JSON = os.path.join(ROOT, "data", "tasks.json")           # website repository
 DEV_SET = os.path.join(ROOT, "suite", "dev_set.yaml")
+DEV_SET_JSON = os.path.join(ROOT, "submissions", "dev_set.json")
 
 # Patterns that must never appear in a public submission file.
 SECRET_PATTERNS = [
@@ -42,22 +48,34 @@ def load_yaml(path):
         return yaml.safe_load(fh)
 
 
+def load_json(path):
+    if not os.path.exists(path):
+        return None
+    try:
+        with open(path, encoding="utf-8") as fh:
+            return json.load(fh)
+    except ValueError:
+        return None
+
+
 def scene_families():
-    """{scene: family} from the frozen scene list, or {} when it cannot be read."""
+    """{scene: family} from the frozen scene list, or {} when neither source can be read."""
     data = load_yaml(SCENES)
-    if not data:
-        return {}
-    out = {}
-    for axis, block in (data.get("axes") or {}).items():
-        for scene in (block.get("scenes") or []):
-            name = str(scene.get("name", ""))
-            if name and not name.startswith("<"):
-                out[name] = axis
-    return out
+    if data:
+        return {str(scene["name"]): axis
+                for axis, block in (data.get("axes") or {}).items()
+                for scene in (block.get("scenes") or [])
+                if not str(scene.get("name", "<")).startswith("<")}
+    tasks = load_json(TASKS_JSON)
+    if tasks:
+        return {str(scene["name"]): dim.get("axis") or dim.get("id")
+                for dim in (tasks.get("dimensions") or [])
+                for scene in (dim.get("scenes") or [])}
+    return {}
 
 
 def dev_scenes():
-    data = load_yaml(DEV_SET)
+    data = load_yaml(DEV_SET) or load_json(DEV_SET_JSON)
     if not data:
         return []
     return [str(s) for s in (data.get("scenes") or [])]

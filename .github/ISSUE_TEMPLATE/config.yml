@@ -1,8 +1,11 @@
 blank_issues_enabled: true
 contact_links:
+  - name: Request an evaluation
+    url: https://github.com/embodied-ai-research/ManipScope_webpage/issues/new/choose
+    about: Evaluation requests and result submissions are filed in the website repository, where the leaderboard is built. Read docs/SUBMISSIONS.md here first.
   - name: Participation protocol
     url: https://github.com/embodied-ai-research/ManiScope/blob/main/docs/SUBMISSIONS.md
-    about: How evaluation requests, tracks, result status and costs work. Read this before filing.
+    about: How requests, tracks, result status and costs work. Read this before filing.
   - name: Credentials and private data
     url: https://github.com/embodied-ai-research/ManiScope/blob/main/SECURITY.md
     about: Never post API keys, tokens or seed lists in issues or pull requests.

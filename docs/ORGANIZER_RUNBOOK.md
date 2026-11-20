@@ -112,10 +112,14 @@ Nothing in this repository sends mail. Workflow runs and submission activity rea
 through their own GitHub notification settings, which keeps personal addresses out of a public
 repository:
 
-- watch the repository with **Custom**: Issues, Pull requests and Actions failures;
-- set the notification email for this organization in the GitHub account settings;
-- `.github/CODEOWNERS` requests review from the organizer team on every `submissions/**` change, so
-  a submission pull request produces a review-request notification.
+- submissions arrive in the website repository, so watch **that** repository with **Custom**:
+  Issues, Pull requests and Actions failures;
+- watch this repository the same way for scene, protocol and code issues. A repository owned by
+  another account or organization still notifies whoever watches it, so ownership does not decide
+  who gets the mail — the watch does;
+- set the notification email in the GitHub account settings, per organization if needed;
+- `.github/CODEOWNERS` in the website repository requests review from the organizer team on every
+  `submissions/**` change, so a submission pull request produces a review-request notification.
 
 Do not add an SMTP-based mail action to the submission workflow: pull requests from forks cannot read
 repository secrets, so it would fail exactly when it is needed.
