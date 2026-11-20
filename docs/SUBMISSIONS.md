@@ -187,6 +187,69 @@ version, so the existing 48-scene leaderboard stays comparable. Changing scenes,
 pools or step limits requires a new protocol version, never a silent hash refresh
 (see [docs/DEVELOPMENT.md](DEVELOPMENT.md)).
 
+## 7. Fair comparison rules
+
+These rules exist so a column can be read as a comparison. Each one says who enforces it, because
+the difference matters: some are properties of the harness, others are declarations the organizers
+cannot verify from the outside.
+
+**1. Track separation.** The standard track is for controlled comparison. A system with extra
+training on the evaluation scenes, custom tools or its own planning module belongs in
+`open_system`, and the two are displayed separately. Choosing the wrong track is not a disagreement
+about scores; it makes the row unreadable.
+
+**2. Training boundary.** The standard generalization track forbids training or adaptation data
+built from the 48 evaluation scenes, and any leaked formal trajectory. Declare the provenance of
+training and adaptation data in `system.training_data`. *Enforcement:* the evaluation scenes ship
+without demonstrations and the formal seed lists are organizer-held, so the data does not exist in
+the release; beyond that this is a declaration, and the validator asks for it rather than proving it.
+
+**3. Uniform inputs.** A system receives the three specified RGB views, proprioception and the
+instruction. Target identifiers, ground-truth object poses, hidden seeds and expert trajectories are
+not provided and must not be obtained. *Enforcement:* by construction in `task_config/demo_clean.yml`
+— depth, point cloud, mesh and actor segmentation are off, and the agent request carries images,
+measured end-effector and joint state and execution feedback only. No privileged object state is
+exposed to either interface.
+
+**4. Isolated run environment.** The evaluated system must not read or modify the simulator, the
+evaluation files or the scoring logic. *Enforcement:* for agents this is structural — the model runs
+behind an authenticated loopback bridge in its own process, with the fixed two-tool surface in which
+only `move_eef` actuates and `finish` ends the attempt. For a policy the adapter is imported into
+the evaluator process, so isolation there rests on review: an official run uses an adapter the
+organizers have read, with the model reached over the network. Submitted adapter code is read before
+it is run.
+
+**5. Locked submission version.** Fix the code, weights, configuration and dependencies before the
+official run and keep them fixed throughout. Record the checkpoint or image digest in
+`system.weights_digest`. Selecting a prepared answer per test instance is prohibited.
+*Enforcement:* every scene writes the repository commit and dirty state, and
+`tools/export_submission.py` refuses to export a run whose scenes disagree on commit, episode count
+or task configuration. Per-instance switching is addressed by the hidden initial states, the
+retained action logs and the spot checks in rule 7, not by inspecting the submitter's process.
+
+**6. Memory and adaptation.** Within an episode, history and ordinary planning are allowed. State
+resets between episodes, and test experience must not accumulate across episodes, nor weights be
+updated during evaluation. *Enforcement:* the evaluator calls the adapter's reset between episodes
+and the bridge's reset clears per-episode history and the call count; earlier images are dropped
+before the next request. For a service the organizers do not control, the absence of cross-episode
+learning is a declaration, which is why `system.hosting` records where inference ran.
+
+**7. Protecting the formal set.** The formal initial states stay organizer-held; a formal scene
+without its seed file is refused rather than silently run on other seeds. Each system gets one
+official run per protocol version, and published feedback is the per-episode outcome, termination
+reason, call count and timings — not the initial states or instruction-to-seed mapping. The
+organizers additionally spot-check with unpublished but legal layout and instruction variations, so
+a system tuned to specific remembered episodes does not transfer.
+
+**8. Organizer scoring and records.** The organizers run all specified episodes and record success,
+timings, actions and anomalies, including retries and discarded runs. A result obtained through a
+remote black-box service is labelled: `system.hosting` is `remote_blackbox` and
+`run.verification_scope` states what the organizers could verify themselves and what rests on the
+submitter's word.
+
+None of this makes cheating impossible. It makes the comparable claim precise and the unverifiable
+part visible, which is the most an evaluation-only benchmark can honestly offer.
+
 ## Who does what
 
 The organizer-side procedure — batch planning, credential handling, the official run commands and

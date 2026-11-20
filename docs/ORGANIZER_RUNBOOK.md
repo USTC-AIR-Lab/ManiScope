@@ -97,6 +97,22 @@ Never publish the seed-bearing material: `--include-seeds` is for private intern
 per-episode initial poses, seed lists and instruction-to-seed mappings stay in the private analysis
 space. The published submission file identifies episodes by index.
 
+## Spot checks on the formal set
+
+Rule 7 of the fair-comparison rules promises unpublished but legal variations. Keep a private
+holdout alongside the formal lists: for a handful of scenes, additional expert-checked initial
+states generated the same way, plus the alternative valid instructions already in the scene's own
+pool. They are not a new protocol version and are never published as leaderboard numbers.
+
+Use them when a result is surprising — a large jump over comparable systems, or success
+concentrated on the published episode indices. A system that learned the evaluation episodes rather
+than the task drops on the holdout while an honest one does not. Record the comparison in the
+private run record and, if it changes how a row should be read, state that on the row rather than
+silently withholding the result.
+
+Generating the holdout needs the simulator and the scripted expert, so it belongs to a GPU session,
+not to a review.
+
 ## Review checklist before merging a result
 
 1. CI passed on the pull request (schema, coverage, recomputed Overall and Pooled, credential scan).
@@ -107,7 +123,12 @@ space. The published submission file identifies episodes by index.
    cap, call and wall-time budgets, and whether the wall-time budget excluded provider waiting.
 5. Artifact links resolve and their digests match.
 6. The row's protocol version is recorded, and a result from a different protocol version is not
-   placed in the same table as `formal48-v1` rows.
+   placed in the same table as rows from the frozen release.
+7. The fair-comparison rules in SUBMISSIONS.md are satisfied on their face: the track matches what
+   the system actually is, `system.training_data` is present and does not describe data built from
+   the evaluation scenes, `system.tools` matches the track, `system.weights_digest` names the
+   evaluated checkpoint, and `system.hosting` plus `run.verification_scope` describe honestly how
+   much the organizers could see.
 
 ## Notifications
 

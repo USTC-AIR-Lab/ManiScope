@@ -214,15 +214,17 @@ def main():
     families = scene_families()
     dev = set((load_yaml(DEV_SET) or {}).get("scenes") or [])
     scenes, episodes = [], []
-    commit = dirty = per_scene = task_config = instruction_type = None
+    commits, episode_counts, configs = {}, {}, {}
+    dirty = False
+    instruction_type = None
     for scene_dir in sorted(scene_dirs):
         with open(os.path.join(scene_dir, "_run_metadata.json"), encoding="utf-8") as fh:
             meta = json.load(fh)
         scene = meta["task"]
-        commit = commit or meta.get("commit")
+        commits.setdefault(meta.get("commit"), []).append(scene)
+        episode_counts.setdefault(int(meta.get("episodes") or 0), []).append(scene)
+        configs.setdefault(meta.get("task_config"), []).append(scene)
         dirty = dirty or bool(meta.get("dirty"))
-        per_scene = per_scene or int(meta.get("episodes") or 0)
-        task_config = task_config or meta.get("task_config")
         log_dir = args.log_dir or os.path.join(ROOT, "suite", "logs", os.path.basename(args.run_dir.rstrip("/")))
         records = episode_records(scene_dir, scene, os.path.join(log_dir, scene + ".log"),
                                   args.include_seeds)
@@ -230,6 +232,20 @@ def main():
         scenes.append({"name": scene, "family": families.get(scene, "unknown"),
                        "episodes": len(records),
                        "successes": sum(1 for r in records if r["success"])})
+
+    # One run, one commit, one episode count, one task config: anything else is not a single
+    # evaluation and must not be exported as one.
+    for label, groups in (("commit", commits), ("episodes per scene", episode_counts),
+                          ("task config", configs)):
+        if len(groups) > 1:
+            detail = "; ".join("%s: %s%s" % (k, ", ".join(v[:3]), " ..." if len(v) > 3 else "")
+                               for k, v in groups.items())
+            raise SystemExit("scenes in this run disagree on %s - %s\n"
+                             "An official result names one configuration. Re-run the scenes that "
+                             "differ, or export them as separate submissions." % (label, detail))
+    commit = next(iter(commits))
+    per_scene = next(iter(episode_counts))
+    task_config = next(iter(configs))
 
     names = {s["name"] for s in scenes}
     scene_set = "formal48" if len(names) == 48 else ("dev6" if dev and names == dev else "other")
