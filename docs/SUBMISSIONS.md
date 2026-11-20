@@ -1,9 +1,9 @@
 # Submitting an evaluation
 
-Status: **v0.1 of the participation protocol.** The interfaces, file formats and the schedule below
-are in force. One value is still missing: the private address for credentials, marked
-`TODO(organizers)` under [Cost and scheduling](#5-cost-and-scheduling). Until it is filled in, ask
-in the request issue how to send a key — never post one.
+Status: **v0.1 of the participation protocol.** The interfaces, file formats, schedule and
+credential channel below are in force. Credentials go to
+<sayleefilipski@gmail.com> and nowhere else — never into an issue, a pull request, a log or a
+result file.
 
 ManipScope is evaluation-only and its formal seed lists are private, so a score is only comparable
 when it was produced on the organizer-held initial states. Participation therefore has three
@@ -130,16 +130,20 @@ Simulation is the organizers' cost; inference is normally the submitter's. State
 request which side pays for the simulator GPU hours, the API tokens and, for open-weights models,
 the inference GPUs.
 
-- **API models**: provide a quota-limited endpoint and key over the private channel; the organizers
-  run the simulator and the agent framework against it.
+- **API models**: provide an endpoint and a credential over the private channel; the organizers run
+  the simulator and the agent framework against it.
 - **Open-weights models**: provide a container image and a weights location; the organizers run both.
 
-Keys are accepted only at the private address `TODO(organizers): role address, e.g.
-manipscope-eval@<institution>` — not in an issue, a pull request, a log or a result file. Use a key
-scoped to your own project with a spending cap and, where the provider supports it, an expiry date;
-the cap protects you, because a 188 GPU-hour run is also a long billing window. The organizers hold
-it only in the evaluation machine's private runtime directory and ask you to revoke it when the
-batch ends.
+**Send the least dangerous thing that works.** The bridge accepts any HTTPS base URL, so the
+preferred form is a gateway you control — your own proxy endpoint with a disposable token, a hard
+spend cap and metering you can watch — rather than a provider root key. Whatever you send, scope it
+to this evaluation, cap the spend and set an expiry where the provider supports one: a 188 GPU-hour
+run is also a long billing window, and the cap protects you, not the organizers.
+
+Credentials go to **<sayleefilipski@gmail.com>** and nowhere else — not an issue, not a pull
+request, not a log, not a result file. A credential that appears in a public place is treated as
+compromised and must be revoked. The organizers hold it only in the evaluation machine's private
+runtime directory, and ask you to revoke it when the batch ends.
 
 Start with the development set, then request the full 48-scene batch. One request per system per
 batch; the organizers say in the acknowledgement which batch it entered.

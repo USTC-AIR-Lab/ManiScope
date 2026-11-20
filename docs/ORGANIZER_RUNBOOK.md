@@ -1,8 +1,7 @@
 # Organizer runbook
 
 Internal counterpart to [SUBMISSIONS.md](SUBMISSIONS.md). The public page states the commitments;
-this page states how they are met. One value is deliberately left for the organizers to create: the
-role address in [Credentials](#credentials).
+this page states how they are met.
 
 ## Capacity: what an official run costs
 
@@ -48,12 +47,16 @@ with the reason rather than silently repeated.
 
 ## Credentials
 
-`TODO(organizers)`: create a role address — a mailbox or forwarding alias owned by the group, not a
-personal account — and put it in SUBMISSIONS.md where the private channel is named. A role address
-survives personnel changes and keeps a personal identity out of a public repository, which also
-matters while the paper is under anonymous review.
+The channel is **sayleefilipski@gmail.com**, published in SUBMISSIONS.md. It is a single mailbox
+rather than a group alias: when the group has a role address, point this one at it and update both
+documents, because a role address survives personnel changes. Until then, keep a filter that labels
+mail from the submission flow so credentials do not sit unread in a personal inbox.
 
-Rules that apply once it exists:
+Ask for the least dangerous credential that works: a submitter-controlled gateway endpoint with a
+disposable, spend-capped token in preference to a provider root key. The bridge accepts any HTTPS
+base URL, so this costs nothing to support.
+
+Rules:
 
 - Keys arrive only at that address, never in an issue, a pull request, a log or a result file. A key
   that appears in a public place is treated as compromised: ask the submitter to revoke it.
