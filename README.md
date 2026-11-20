@@ -1,4 +1,20 @@
-# ManipScope
+<h1 align="center">ManipScope</h1>
+
+<p align="center">
+  <strong>A Diagnostic Benchmark for Instruction Following and Generalization in Robotic Manipulation</strong>
+</p>
+
+<p align="center">
+  <a href="https://embodied-ai-research.github.io/ManipScope_webpage/">Webpage</a> |
+  <a href="https://embodied-ai-research.github.io/ManipScope_webpage/usage/install-and-download/">Documentation</a> |
+  <a href="https://embodied-ai-research.github.io/ManipScope_webpage/participate/">Evaluate Your Model</a> |
+  <a href="https://embodied-ai-research.github.io/ManipScope_webpage/leaderboard/">Leaderboard</a> |
+  <a href="#citation">Citation</a>
+</p>
+
+<p align="center">
+  <a href="#citation"><img src="https://img.shields.io/badge/arXiv-ID_pending-b31b1b.svg" alt="arXiv identifier pending"></a>
+</p>
 
 An evaluation-only diagnostic benchmark for robotic instruction following under changed task requirements,
 built on RoboTwin 2.0 simulation resources. ManipScope separates the simulation/evaluation loop from model
@@ -103,6 +119,21 @@ tables. Create the instrumented evaluator once with `python3 diagnostics/make_ev
 - [Normalization and validation status](docs/NORMALIZATION.md)
 - [Submitting an evaluation](docs/SUBMISSIONS.md) and the [model configuration interface](configs/model_configs/README.md)
 - [Contributing](CONTRIBUTING.md), [security](SECURITY.md), [third-party notices](THIRD_PARTY_NOTICES.md)
+
+## Citation
+
+If you use ManipScope in your research, please cite the following preprint.
+The arXiv identifier and paper link will be added when available.
+
+```bibtex
+@misc{li2026manipscope,
+  title  = {ManipScope: A Diagnostic Benchmark for Instruction Following and Generalization in Robotic Manipulation},
+  author = {Li, Jiacheng and Li, Yaping and Xu, Congsheng and Liu, Qingchen and
+            Wang, Haonan and Deng, Zhijie and Qin, Jiahu},
+  year   = {2026},
+  note   = {Preprint; arXiv identifier to be added}
+}
+```
 
 ## Attribution and license
 
